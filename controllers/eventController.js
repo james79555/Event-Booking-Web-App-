@@ -5,3 +5,8 @@ const getAllEvents = (req, res) => {
 const processBooking = (req, res) => {
     res.send("Details for event with ID: " + req.params.id);
 }
+
+module.exports = {
+    getAllEvents,
+    processBooking
+}

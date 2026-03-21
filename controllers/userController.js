@@ -17,3 +17,11 @@ const processLogin = (req, res) => {
 const showProfile = (req, res) => {
     res.send('user profile page');
 }
+
+module.exports = {
+    showRegistrationForm,
+    processRegistration,
+    showLoginForm,
+    processLogin,
+    showProfile
+}

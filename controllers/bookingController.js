@@ -5,3 +5,8 @@ const showUserBookings = (req, res) => {
 const processBooking = (req, res) => {
     res.status(200).send('booking processed');
 }
+
+module.exports = {
+    showUserBookings,
+    processBooking
+}
