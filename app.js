@@ -3,6 +3,7 @@ const path = require('path');
 
 const eventRoutes = require('./routes/eventRoutes');
 const userRoutes = require('./routes/userRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 
 const app = express()
 const port = process.env.PORT || 3000;
@@ -16,6 +17,7 @@ app.use(express.static('public'));
 
 app.use('/events', eventRoutes);
 app.use('/users', userRoutes);
+app.use('/bookings', bookingRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
