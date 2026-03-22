@@ -10,6 +10,15 @@ describe('POST /bookings - Process Booking', () => {
         expect(response.status).toBe(200); 
         expect(response.text).toContain("booking processed");
     })
-})
+});
+
+describe('GET /bookings - Show User Bookings', () => {
+    it("should return a 200 status code and 'list of user's bookings'", async () => {
+        const response = await request(app).get('/bookings');
+
+        expect(response.status).toBe(200);
+        expect(response.text).toContain("list of user's bookings");
+    })
+});
 
 module.exports = app; 
