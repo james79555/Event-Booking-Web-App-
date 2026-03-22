@@ -10,6 +10,15 @@ describe('POST /bookings - Process Booking', () => {
         expect(response.status).toBe(200); 
         expect(response.text).toContain("booking processed");
     })
+
+    it('should return a 400 status when requesting more tickets than available capacity', async () =>{
+        const response = await request(app)
+        .post('/bookings')
+        .send({eventId: 1, ticketQuantity: 9999});
+
+        expect(response.status).toBe(400);
+        expect(response.text).toContain('Not Enough Capacity!');
+    }); 
 });
 
 describe('GET /bookings - Show User Bookings', () => {
