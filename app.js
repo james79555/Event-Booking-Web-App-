@@ -19,6 +19,8 @@ app.use('/events', eventRoutes);
 app.use('/users', userRoutes);
 app.use('/bookings', bookingRoutes);
 
+module.exports = app;
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
