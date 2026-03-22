@@ -19,6 +19,15 @@ describe('POST /bookings - Process Booking', () => {
         expect(response.status).toBe(400);
         expect(response.text).toContain('Not Enough Capacity!');
     }); 
+
+    it('should return a 400 status when ticketQuantity is missing from the request', async () => {
+        const response = await request(app)
+            .post('/bookings')
+            .send({ eventId: 1 }); 
+
+        expect(response.status).toBe(400); 
+        expect(response.text).toContain("Missing quantity!");
+    });
 });
 
 describe('GET /bookings - Show User Bookings', () => {
