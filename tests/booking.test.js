@@ -27,15 +27,16 @@ describe('POST /bookings - Process Booking', () => {
 
         expect(response.status).toBe(400); 
         expect(response.text).toContain("Missing quantity!");
-    }); //(1)add code to make this pass 
+    }); 
 });
 
 describe('GET /bookings - Show User Bookings', () => {
-    it("should return a 200 status code and 'list of user's bookings'", async () => {
-        const response = await request(app).get('/bookings');
+    it("should return a 200 status code and an array of tickets for a valid user", async () => {
+        const response = await request(app).get('/bookings?userId=1');
 
         expect(response.status).toBe(200);
-        expect(response.text).toContain("list of user's bookings");
+        expect(response.body).toBe('array'); 
+        expect(response.body.length).toBeGreaterThan(0);
     })
     //(2)write test for perfect case, write code to satisfy then cover corner cases recursively 
 });
