@@ -7,6 +7,11 @@ const showUserBookings = (req, res) => {
 const processBooking = async (req, res) => {
     try{
         const {eventId, userId, ticketQuantity} = req.body; 
+
+        if (!req.body.ticketQuantity) {
+            return res.status(400).send('Missing quantity!');
+        }
+
         const result = await pool.query(
             'SELECT total_capacity, tickets_sold FROM events WHERE event_id = $1', 
             [eventId]

@@ -27,7 +27,7 @@ describe('POST /bookings - Process Booking', () => {
 
         expect(response.status).toBe(400); 
         expect(response.text).toContain("Missing quantity!");
-    });
+    }); //(1)add code to make this pass 
 });
 
 describe('GET /bookings - Show User Bookings', () => {
@@ -37,6 +37,7 @@ describe('GET /bookings - Show User Bookings', () => {
         expect(response.status).toBe(200);
         expect(response.text).toContain("list of user's bookings");
     })
+    //(2)write test for perfect case, write code to satisfy then cover corner cases recursively 
 });
 
 module.exports = app; 
