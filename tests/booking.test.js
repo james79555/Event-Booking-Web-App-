@@ -9,7 +9,7 @@ describe('POST /bookings - Process Booking', () => {
 
         expect(response.status).toBe(200); 
         expect(response.text).toContain("booking processed");
-    })
+    });
 
     it('should return a 400 status when requesting more tickets than available capacity', async () =>{
         const response = await request(app)
@@ -37,8 +37,22 @@ describe('GET /bookings - Show User Bookings', () => {
         expect(response.status).toBe(200);
         expect(response.body).toBe('array'); 
         expect(response.body.length).toBeGreaterThan(0);
-    })
-    //(2)write test for perfect case, write code to satisfy then cover corner cases recursively 
+    });
+   
+    it('should return a 200 status and an empty array if the user has no bookings', async () => {
+        const response = await request(app).get('/booking?userId=9999');
+
+        expect(response.status).toBe(200);
+        expect(repsonse.body).toBe('array');
+        expect(response.body.length).toBe(0);
+    });
+
+    it('should return a 400 status if the userID is missing', async () => {
+        const response = await request(app).get('/bookings');
+
+        expect(reponse.status).toBe(400);
+        expect(response.text).toContain('User ID is Required!');
+    });
 });
 
 module.exports = app; 
