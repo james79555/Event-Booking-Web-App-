@@ -35,22 +35,22 @@ describe('GET /bookings - Show User Bookings', () => {
         const response = await request(app).get('/bookings?userId=1');
 
         expect(response.status).toBe(200);
-        expect(response.body).toBe('array'); 
+        expect(Array.isArray(response.body)).toBe(true); 
         expect(response.body.length).toBeGreaterThan(0);
     });
    
     it('should return a 200 status and an empty array if the user has no bookings', async () => {
-        const response = await request(app).get('/booking?userId=9999');
+        const response = await request(app).get('/bookings?userId=9999');
 
         expect(response.status).toBe(200);
-        expect(repsonse.body).toBe('array');
+        expect(response.body).toEqual([]);
         expect(response.body.length).toBe(0);
     });
 
     it('should return a 400 status if the userID is missing', async () => {
         const response = await request(app).get('/bookings');
 
-        expect(reponse.status).toBe(400);
+        expect(response.status).toBe(400);
         expect(response.text).toContain('User ID is Required!');
     });
 });
