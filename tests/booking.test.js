@@ -31,22 +31,6 @@ describe('POST /bookings - Process Booking', () => {
 });
 
 describe('GET /bookings - Show User Bookings', () => {
-    it("should return a 200 status code and an array of tickets for a valid user", async () => {
-        const response = await request(app).get('/bookings?userId=1');
-
-        expect(response.status).toBe(200);
-        expect(Array.isArray(response.body)).toBe(true); 
-        expect(response.body.length).toBeGreaterThan(0);
-    });
-   
-    it('should return a 200 status and an empty array if the user has no bookings', async () => {
-        const response = await request(app).get('/bookings?userId=9999');
-
-        expect(response.status).toBe(200);
-        expect(response.body).toEqual([]);
-        expect(response.body.length).toBe(0);
-    });
-
     it('should return a 400 status if the userID is missing', async () => {
         const response = await request(app).get('/bookings');
 
@@ -63,5 +47,15 @@ describe('GET /bookings route - View UI Tests', () => {
         expect(response.headers["content-type"]).toContain("text/html");
         expect(response.text).toContain("<h1>My Bookings</h1>"); 
         expect(response.text).toContain("Ticket Quantity:"); 
+    });
+
+    it('should render the empty state message if the user has no bookings', async () => {
+        const response = await request(app).get('/bookings?userId=9999');
+
+        expect(response.status).toBe(200);
+        expect(response.headers["content-type"]).toContain("text/html");
+
+        expect(response.text).toContain("You haven't booked any tickets yet!");
+        expect(response.text).not.toContain("Ticket Quantity:");
     });
 });
