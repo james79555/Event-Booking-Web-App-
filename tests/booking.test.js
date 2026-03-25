@@ -65,5 +65,3 @@ describe('GET /bookings route - View UI Tests', () => {
         expect(response.text).toContain("Ticket Quantity:"); 
     });
 });
-
-module.exports = app; 
