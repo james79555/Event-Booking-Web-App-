@@ -5,9 +5,7 @@ const showUserBookings = async (req, res) => {
         const { userId } = req.query;
 
         if (!userId) {
-            res.status(400);
-            res.send('User ID is Required!');
-            return;
+            return res.status(400).send('User ID is Required!');
         }
 
         const result = await pool.query(
@@ -15,7 +13,7 @@ const showUserBookings = async (req, res) => {
             [userId]
         );
         const bookings = result.rows;
-        res.status(200).json(bookings);
+        res.status(200).render('bookings', {bookings: bookings});
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error while fetching bookings');

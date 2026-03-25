@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>User Bookings</title>
+    </head>
+    <body>
+        <div class="container">
+            <h1>My Bookings</h1>
+            <% if (bookings.length === 0) { %>
+                <p class ="empty-state"> You haven't booked any tickets yet! </p>
+            <% } else { %>
+                <ul class="booking-list">
+                    <% bookings.forEach(ticket => { %>
+                        <li class="ticket-card">
+                            <strong> <%= ticket.title %> </strong>
+                            <p> <%= ticket.event_date %> </p>
+                            <p> Ticket Quantity: <%= ticket.ticket_quantity %> </p>
+                        </li>
+                    <% }) %>
+                </ul>    
+            <% } %>
+        </div>
+    </body>
+</html>
