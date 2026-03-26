@@ -14,8 +14,8 @@ const getEventDetails = async (req, res) => {
         );
         const event = result.rows[0];
 
-        if ((event.length == 0)) {
-            return res.status(400).send("Event not found!");
+        if ((!event)) {
+            return res.status(404).send("Event not found!");
         }
         
         res.status(200).render('eventDetails', {event: event});

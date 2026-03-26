@@ -9,7 +9,7 @@
         <p> Tickets Available: <%= (event.total_capacity - event.tickets_sold) %> </p>
 
         <form action="/bookings" method="POST">
-            <input type="hidden" name="eventId" value= <%= event.event_id %> >
+            <input type="hidden" name="eventId" value= "<%= event.event_id %>" >
             <input type="hidden" name="userId" value= "1">
 
             <label> How many tickets? </label>

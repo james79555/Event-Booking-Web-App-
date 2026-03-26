@@ -16,6 +16,6 @@ describe('GET /events/:id - View Event Details', () =>{
         const response = await request(app).get("/events/9999");
 
         expect(response.status).toBe(404);
-        expect(resposne.text).toCOntain("Event not found!");
+        expect(response.text).toContain("Event not found!");
     })
 });
