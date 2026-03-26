@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Event Details</title>
+    </head>
+    <body>
+        <h1> <%= event.title %> </h1>
+        <p> <%= event.location %> | <%= event.event_date %></p>
+        <p> Tickets Available: <%= (event.total_capacity - event.tickets_sold) %> </p>
+
+        <form action="/bookings" method="POST">
+            <input type="hidden" name="eventId" value= <%= event.event_id %> >
+            <input type="hidden" name="userId" value= "1">
+
+            <label> How many tickets? </label>
+            <input type="number" name="ticketQuantity" min= "1">
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+    
+</html>

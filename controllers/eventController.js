@@ -1,12 +1,32 @@
+const pool = require('../config/db');
+
 const getAllEvents = (req, res) => {
     res.send("list of all events");
 }
 
-const processBooking = (req, res) => {
-    res.send("Details for event with ID: " + req.params.id);
+const getEventDetails = async (req, res) => {
+    try {
+        const eventId = req.params.id; 
+
+        const result = await pool.query(
+            "SELECT * FROM events WHERE event_id = $1", 
+                [eventId]
+        );
+        const event = result.rows[0];
+
+        if ((event.length == 0)) {
+            return res.status(400).response("Event not found");
+        }
+        
+        res.status(200).render('eventDetails', {event: event});
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server error while fetching event details");
+    }
+    
 }
 
 module.exports = {
     getAllEvents,
-    processBooking
+    getEventDetails
 }

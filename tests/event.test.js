@@ -1,9 +1,9 @@
 const request = require('supertest'); 
 const app = require('../app')
 
-describe('GET /eevnts/:id - View Eveent Details', () =>{
+describe('GET /events/:id - View Event Details', () =>{
     it('should display the event details and a booking form', async () => {
-        const response = await request(app).get(/events/1);
+        const response = await request(app).get("/events/1");
 
         expect(response.status).toBe(200);
         expect(response.headers["content-type"]).toContain("text/html");
