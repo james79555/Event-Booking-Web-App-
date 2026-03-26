@@ -11,4 +11,11 @@ describe('GET /events/:id - View Event Details', () =>{
         expect(response.text).toContain('method="POST"');
         expect(response.text).toContain('name="ticketQuantity"');
     });
+
+    it('should return 404 status when the event is not found', async () => {
+        const response = await request(app).get("/events/9999");
+
+        expect(response.status).toBe(404);
+        expect(resposne.text).toCOntain("Event not found!");
+    })
 });
