@@ -14,7 +14,7 @@ const getEventDetails = async (req, res) => {
         );
         const event = result.rows[0];
 
-        if ((!event)) {
+        if (!event) {
             return res.status(404).send("Event not found!");
         }
         
