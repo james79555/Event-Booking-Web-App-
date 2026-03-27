@@ -20,8 +20,8 @@ describe('GET /events/:id - View Event Details', () =>{
     })
 });
 
-describe('GET /events - View ALl Events (Catalogue)', () => {
-    it('should return a 200 sttaus and display a list of events', async () => {
+describe('GET /events - View All Events (Catalogue)', () => {
+    it('should return a 200 status and display a list of events', async () => {
         const response = await request(app).get('/events');
 
         expect(response.status).toBe(200);

@@ -1,7 +1,19 @@
 const pool = require('../config/db');
 
-const getAllEvents = (req, res) => {
-    res.send("list of all events");
+const getAllEvents = async (req, res) => {
+    try{
+        const result = await pool.query(
+            "SELECT * FROM events ORDER BY event_date ASC"
+        );
+    
+        const events = result.rows;
+    
+        res.status(200).render('events', {events: events});
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server error while fetching events");
+    }
+   
 }
 
 const getEventDetails = async (req, res) => {
