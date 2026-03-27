@@ -36,7 +36,7 @@ describe('GET /events - View All Events (Catalogue)', () => {
         
         expect(response.status).toBe(200);
         expect(response.headers["content-type"]).toContain("text/html");
-        expect(response.text).toContain("No upcoming events at the moment.");
+        expect(response.text).toContain("No upcoming events at the moment");
         expect(response.text).not.toContain("View Details");
     });
 });

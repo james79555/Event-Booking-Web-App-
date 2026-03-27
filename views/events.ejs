@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <h1>Upcoming Events</h1>
+    </head>
+    <body>
+        <div class="container">
+            <% if (events.length === 0) { %>
+                <p class="empty-state">No upcoming events at the moment</p>
+            <% } else { %>
+                <ul class="event-list">
+                    <% events.forEach(event => { %>
+                        <li class="event-card">
+                            <strong> <%= event.title %> </strong>
+                            <p> <%= event.event_date %> </p>
+                            <a href="/events/<%= event.event_id %>">View Details</a>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } %> 
+        </div>
+    </body>
+</html>
