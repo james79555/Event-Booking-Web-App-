@@ -29,4 +29,12 @@ describe('POST /register - User Registration', () => {
             expect(response.status).toBe(400);
             expect(response.text).toContain('All fields are required');
     })
-})
+});
+
+describe('GET /register - Show Registration Form', () => {
+    it('should return a 200 status and render the registration form', async () => {
+        const response = await request(app).get('/users/register');
+        expect(response.status).toBe(200);
+        expect(response.text).toContain('<form'); 
+    });
+});
