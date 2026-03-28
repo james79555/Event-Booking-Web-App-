@@ -7,7 +7,7 @@ describe('POST /register - User Registration', () => {
         const testEmail = "user" + timestamp + "@example.com"
 
         const response = await request(app)
-            .post('/register')
+            .post('/users/register')
             .send({
                 name: "Test User",
                 email: testEmail,
@@ -20,7 +20,7 @@ describe('POST /register - User Registration', () => {
 
     it('should return a 400 status if required fields are missing', async () => {
         const response = await request(app)
-            .post('/register')
+            .post('/users/register')
             .send({
                 name: "Incomplete user",
                 email: "incomplete@example.com"
