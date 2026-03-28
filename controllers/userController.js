@@ -3,11 +3,10 @@ const argon2 = require('argon2');
 
 
 const showRegistrationForm = (req, res) => {
-    res.send('registration form');
+    res.status(200).render('register');
 }
 
 const processRegistration = async (req, res) => {
-    //res.send('user registered');
     try{
         const {name, email, password} = req.body
 
