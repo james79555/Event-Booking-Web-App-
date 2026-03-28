@@ -29,11 +29,39 @@ const processRegistration = async (req, res) => {
 }
 
 const showLoginForm = (req, res) => {
-    res.send('login page'); 
+    res.status(200).render('login');
 }
 
-const processLogin = (req, res) => {
-    res.send('login processed'); 
+const processLogin = async (req, res) => {
+    //res.send('login processed');
+    try{
+        const {email, password} = req.body
+
+        if (!email || !password) {
+            return res.status(400).send('Email and password are required')
+        }
+
+        const result = await pool.query(
+            "SELECT * FROM users where email = $1", [email]
+        )
+
+        if (result.rows.length === 0) {
+            return res.status(401).send('Invalid email or password');
+        }
+
+        const user = result.rows[0]
+
+        const isMatch = await argon2.verify(user.password_hash, password);
+
+        if (!isMatch) {
+            return res.status(401).send('Invalid email or password');
+        }
+
+        res.status(200).send('login successful');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error during login');
+    }
 }
 
 const showProfile = (req, res) => {
