@@ -1,6 +1,22 @@
 const request = require('supertest'); 
 const app = require('../app');
 
+async function getAuthCookie() {
+    const timestamp = Date.now();
+    const testEmail = "booker" + timestamp + "@example.com";
+    const testPassword = "SecurePassword123";
+
+    await request(app)
+        .post('/users/register')
+        .send({name: "Test Booker", email: testEmail, password: testPassword});
+
+    const loginResponse = await request(app)
+        .post('/users/login')
+        .send({email: testEmail, password: testPassword});
+
+    return loginResponse.headers['set-cookie'];
+}
+
 describe('POST /register - User Registration', () => {
     it('should successfully register a new user and return a 201 status', async () => {
         const timestamp = Date.now()
@@ -114,26 +130,7 @@ describe('GET /login - Show Login Form', () => {
 
 describe('GET /users/profile - View User Profile', () => {
     it('should allow an authenticated user to view their profile', async () => {
-        const timestamp = Date.now();
-        const testEmail = "profileuser" + timestamp + "@example.com";
-        const testPassword = "Secure?1289";
-        
-        await request(app)
-            .post('/users/register')
-            .send({
-                name:"Test Profile",
-                email: testEmail,
-                password: testPassword
-            });
-
-        const loginResponse = await request(app)
-            .post('/users/login')
-            .send({
-                email: testEmail,
-                password: testPassword
-            });
-
-        const cookies = loginResponse.headers['set-cookie'];
+        const cookies = await getAuthCookie();
 
         const profileResponse = await request(app)
             .get('/users/profile')
@@ -149,4 +146,63 @@ describe('GET /users/profile - View User Profile', () => {
         expect(response.status).toBe(302);
         expect(response.headers.location).toBe('/users/login');
     });
-})
+});
+
+descibe('POST /users/profile/password - Change Password', () => {
+    it('should allow an authenticated user to change their password', async () => {
+        const cookies = await getAuthCookie();
+
+        const changePasswordResponse = await request(app)
+            .post('/users/profile/password')
+            .set('Cookie', cookies)
+            .send({
+                currentPassword: testPassword,
+                newPassword: 'NewSecure?1289'
+            });
+
+        expect(changePasswordResponse.status).toBe(200);
+        expect(changePasswordResponse.text).toContain('Password changed successfully');
+    });
+
+    it('should reject a password change attempt with an incorrect current password', async () => {
+        const cookies = await getAuthCookie();
+
+        const changePasswordResponse = await request(app)
+            .post('/users/profile/password')
+            .set('Cookie', cookies)
+            .send({
+                currentPassword: 'WrongCurrent?1289',
+                newPassword: 'NewSecure?1289'
+            });
+
+        expect(changePasswordResponse.status).toBe(401);
+        expect(changePasswordResponse.text).toContain('Current password is incorrect');
+    });
+
+    it('should reject a password change attempt with missing fields', async () => {
+        const cookies = await getAuthCookie();
+
+        const changePasswordResponse = await request(app)
+            .post('/users/profile/password')
+            .set('Cookie', cookies)
+            .send({
+                currentPassword: testPassword
+            });
+
+        expect(changePasswordResponse.status).toBe(400);
+        expect(changePasswordResponse.text).toContain('All fields are required');
+    });
+
+    it('should redirect an unauthenticated user to login', async () => {
+        const changePasswordResponse = await request(app)
+            .post('/users/profile/password')
+            .send({
+                currentPassword: testPassword,
+                newPassword: 'NewSecure?1289'
+            });
+
+        expect(changePasswordResponse.status).toBe(302);
+        expect(changePasswordResponse.headers.location).toBe('/users/login');
+    });
+
+});

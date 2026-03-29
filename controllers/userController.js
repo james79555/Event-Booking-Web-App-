@@ -65,7 +65,6 @@ const processLogin = async (req, res) => {
 }
 
 const showProfile = async (req, res) => {
-    //res.send('user profile page');
     try{
         const userId = req.session.userId;
 
