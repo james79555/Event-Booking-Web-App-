@@ -64,8 +64,27 @@ const processLogin = async (req, res) => {
     }
 }
 
-const showProfile = (req, res) => {
-    res.send('user profile page');
+const showProfile = async (req, res) => {
+    //res.send('user profile page');
+    try{
+        const userId = req.session.userId;
+
+        if (!userId) {
+            return res.redirect('/users/login');    
+        }
+
+        const result = await pool.query(
+            'SELECT name, email FROM users WHERE user_id = $1', [userId]
+        );
+
+        const user = result.rows[0];
+
+        res.status(200).render('profile', { user });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error while fetching profile');
+    }
+    
 }
 
 module.exports = {
