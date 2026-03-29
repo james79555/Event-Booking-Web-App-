@@ -176,7 +176,7 @@ descibe('POST /users/profile/password - Change Password', () => {
             });
 
         expect(changePasswordResponse.status).toBe(401);
-        expect(changePasswordResponse.text).toContain('Current password is incorrect');
+        expect(changePasswordResponse.text).toContain('Incorrect password');
     });
 
     it('should reject a password change attempt with missing fields', async () => {

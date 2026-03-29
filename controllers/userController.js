@@ -64,6 +64,41 @@ const processLogin = async (req, res) => {
     }
 }
 
+const updatePassword = async (req,res) => {
+    try{
+        const userId = req.session.userId;
+        const {currentPassword, newPassword} = req.body;
+
+        if (!userId) {
+            return res.redirect('/users/login');
+        }
+
+        const result = await pool.query(
+            "SELECT password_hash FROM users WHERE user_id = $1", [userId]
+        )
+        const user = result.rows[0];
+
+        const isMatch = await argon2.verify(user.password_hash, currentPassword);
+
+        if (!isMatch) {
+            return res.status(401).send('Incorrect password');
+        }
+
+        const newHashedPassword = await argon2.hash(newPassword);
+
+        const passwordChange = await pool.query(
+            "UPDATE users SET password_hash = $1 WHERE user_id = $2",
+            [newHashedPassword, userId]
+        );
+
+        res.status(200).send('Password changed successfully');
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error while updating password');
+    }
+}
+
 const showProfile = async (req, res) => {
     try{
         const userId = req.session.userId;
