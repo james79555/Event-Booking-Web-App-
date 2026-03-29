@@ -204,5 +204,91 @@ descibe('POST /users/profile/password - Change Password', () => {
         expect(changePasswordResponse.status).toBe(302);
         expect(changePasswordResponse.headers.location).toBe('/users/login');
     });
+});
 
+describe('POST /users/profile/email - Update Email', () => {
+    it('should allow an authenticated user to successfully update their email', async () => {
+        const cookies = await getAuthCookie();
+
+        const response = await request(app)
+            .post('/users/profile/email')
+            .set('Cookie', cookies)
+            .send({email: "new.email@example.com"});
+
+            expect(response.status).toBe(200);
+            expect(response.text).toContain('Email updated successfully');
+    });
+
+    it('should return 400 if a new email is already taken', async () => {
+        await request(app)
+            .post('/users/register')
+            .send({
+                name:"User A",
+                email: "taken@example.com",
+                password: "Secure?1289"
+            });
+
+        const cookies = await getAuthCookie();
+
+        const response = await request(app)
+            .post('/users/profile/email')
+            .set('Cookie', cookies)
+            .send({email: "taken@example.com"});
+
+        expect(response.status).toBe(400);
+        expect(response.text).toContain('Email is already in use');
+    });
+
+    it('should return 400 if email field is missing', async () => {
+        const cookies = await getAuthCookie();
+
+        const response = await request(app)
+            .post('/users/profile/email')
+            .set('Cookie', cookies)
+            .send({});
+
+        expect(response.status).toBe(400);
+        expect(response.text).toContain('Email is required');
+    });
+
+    it('should redirect unauthenticated users to login', async () => {
+        const response = await request(app)
+            .post('/users/profile/email')
+
+        expect(response.status).toBe(302);
+    });
+});
+
+describe('POST /users/profile/name - Update Name', () => {
+    it('should allow an authenticated user to successfully update their name', async () => {
+        const cookies = await getAuthCookie();
+
+        const response = await request(app)
+            .post('/users/profile/name')
+            .set('Cookie', cookies)
+            .send({name: "New Name"});
+
+            expect(response.status).toBe(200);
+            expect(response.text).toContain('Name updated successfully');
+    });
+
+    it('should return 400 if the name field is missing', async () => {
+        const cookies = await getAuthCookie();
+
+        const response = await request(app)
+            .post('/users/profile/name')
+            .set('Cookie', cookies)
+            .send({});
+
+        expect(response.status).toBe(400);
+        expect(response.text).toContain('Name is required');
+    });
+
+    it('should redirect unauthenticated users to login', async () => {
+        const response = await request(app)
+            .post('/users/profile/name')
+            .send({name: "New Name"});
+
+        expect(response.status).toBe(302);
+    });
 });

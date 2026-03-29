@@ -73,6 +73,10 @@ const updatePassword = async (req,res) => {
             return res.redirect('/users/login');
         }
 
+        if(!currentPassword || !newPassword) {
+            return res.status(400).send('All fields are required');
+        }
+
         const result = await pool.query(
             "SELECT password_hash FROM users WHERE user_id = $1", [userId]
         )
@@ -126,5 +130,6 @@ module.exports = {
     processRegistration,
     showLoginForm,
     processLogin,
+    updatePassword,
     showProfile
 }
