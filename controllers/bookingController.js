@@ -2,10 +2,10 @@ const pool = require('../config/db');
 
 const showUserBookings = async (req, res) => {
     try{
-        const { userId } = req.query;
+        const userId = req.session.userId;
 
         if (!userId) {
-            return res.status(400).send('User ID is Required!');
+            return res.redirect('/users/login');
         }
 
         const result = await pool.query(
@@ -22,7 +22,12 @@ const showUserBookings = async (req, res) => {
 
 const processBooking = async (req, res) => {
     try{
-        const {eventId, userId, ticketQuantity} = req.body; 
+        const {eventId, ticketQuantity} = req.body; 
+        const userId = req.session.userId;  
+
+        if (!userId) {
+            return res.status(401).send('Unauthorized');
+        }
 
         if (!ticketQuantity) {
             return res.status(400).send('Missing quantity!');
