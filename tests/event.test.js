@@ -7,7 +7,7 @@ describe('GET /events/:id - View Event Details', () =>{
         const testEmail = "user" + timestamp + "@example.com"
         const testPassword = "Secure?1289";
 
-        const registerResponse = await request(app)
+        await request(app)
             .post('/users/register')
             .send({
                 name: "Test User",

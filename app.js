@@ -27,6 +27,10 @@ app.use('/events', eventRoutes);
 app.use('/users', userRoutes);
 app.use('/bookings', bookingRoutes);
 
+app.get('/', (req, res) => {
+    res.redirect('/events');
+});
+
 module.exports = app;
 
 app.listen(port, () => {
