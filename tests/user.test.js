@@ -111,3 +111,42 @@ describe('GET /login - Show Login Form', () => {
         expect(response.text).toContain('<form'); 
     });
 });
+
+describe('GET /users/profile - View User Profile', () => {
+    it('should allow an authenticated user to view their profile', async () => {
+        const timestamp = Date.now();
+        const testEmail = "profileuser" + timestamp + "@example.com";
+        const testPassword = "Secure?1289";
+        
+        await request(app)
+            .post('/users/register')
+            .send({
+                name:"Test Profile",
+                email: testEmail,
+                password: testPassword
+            });
+
+        const loginResponse = await request(app)
+            .post('/users/login')
+            .send({
+                email: testEmail,
+                password: testPassword
+            });
+
+        const cookies = loginResponse.headers['set-cookie'];
+
+        const profileResponse = await request(app)
+            .get('/users/profile')
+            .set('Cookie', cookies);
+
+        expect(profileResponse.status).toBe(200);
+        expect(profileResponse.text).toContain('Test Profile');
+        expect(profileResponse.text).toContain(testEmail);
+    }); 
+
+    it('should redirect unauthenticated users to the login page', async () => {
+        const response = await request(app).get('/users/profile');
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe('/users/login');
+    });
+})
