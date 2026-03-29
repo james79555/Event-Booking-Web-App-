@@ -103,6 +103,66 @@ const updatePassword = async (req,res) => {
     }
 }
 
+const updateName = async (req,res) => {
+    try{
+        const userId = req.session.userId;
+        const {name} = req.body;
+
+        if (!userId) {
+            return res.redirect('/users/login');
+        }
+
+        if(!name) {
+            return res.status(400).send('Name is required');
+        }
+
+        const nameChange = await pool.query(
+            "UPDATE users SET name = $1 WHERE user_id = $2",
+            [name, userId]
+        );
+
+        res.status(200).send('Name updated successfully');
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error while updating name');
+    }
+}
+
+const updateEmail = async (req,res) => {
+    try{
+        const userId = req.session.userId;
+        const {email} = req.body;
+
+        if (!userId) {
+            return res.redirect('/users/login');
+        }
+
+        if(!email) {
+            return res.status(400).send('Email is required');
+        }
+
+        const existingEmail = await pool.query(
+            "SELECT user_id FROM users WHERE email = $1 AND user_id != $2", [email, userId]
+        )
+
+        if (existingEmail.rows.length > 0) {
+            return res.status(400).send('Email is already in use');
+        }
+
+        const emailChange = await pool.query(
+            "UPDATE users SET email = $1 WHERE user_id = $2",
+            [email, userId]
+        );
+
+        res.status(200).send('Email updated successfully');
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error while updating email');
+    }
+}
+
 const showProfile = async (req, res) => {
     try{
         const userId = req.session.userId;
@@ -131,5 +191,7 @@ module.exports = {
     showLoginForm,
     processLogin,
     updatePassword,
+    updateName,
+    updateName,
     showProfile
 }
