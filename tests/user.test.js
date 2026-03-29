@@ -62,6 +62,7 @@ describe('POST /users/login - User Login', () => {
             
             expect(response.status).toBe(200);
             expect(response.text).toContain('login successful');
+            expect(response.headers['set-cookie']).toBeDefined();
     });
 
     it('should reject a login attempt with an unregistered email', async () => {

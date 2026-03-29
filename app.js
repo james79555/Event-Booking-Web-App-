@@ -1,5 +1,7 @@
 const express = require('express');
 const path = require('path');
+const session = require('express-session');
+const dotenv = require('dotenv');
 
 const eventRoutes = require('./routes/eventRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -14,6 +16,12 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
+
+app.use(session({
+    secret: process.env.SESSION_SECRET, 
+    resave: false, 
+    saveUninitialized:false
+}));
 
 app.use('/events', eventRoutes);
 app.use('/users', userRoutes);

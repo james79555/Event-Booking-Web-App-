@@ -33,7 +33,6 @@ const showLoginForm = (req, res) => {
 }
 
 const processLogin = async (req, res) => {
-    //res.send('login processed');
     try{
         const {email, password} = req.body
 
@@ -56,6 +55,7 @@ const processLogin = async (req, res) => {
         if (!isMatch) {
             return res.status(401).send('Invalid email or password');
         }
+        req.session.userId = user.user_id;
 
         res.status(200).send('login successful');
     } catch (err) {

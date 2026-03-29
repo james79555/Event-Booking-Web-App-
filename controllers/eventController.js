@@ -29,8 +29,12 @@ const getEventDetails = async (req, res) => {
         if (!event) {
             return res.status(404).send("Event not found!");
         }
+
+        if (!req.session.userId) {
+            return res.redirect('/users/login');
+        }
         
-        res.status(200).render('eventDetails', {event: event});
+        res.status(200).render('eventDetails', {event: event , userId: req.session.userId});
     } catch (err) {
         console.error(err);
         res.status(500).send("Server error while fetching event details");

@@ -2,15 +2,47 @@ const request = require('supertest');
 const app = require('../app')
 
 describe('GET /events/:id - View Event Details', () =>{
-    it('should display the event details and a booking form', async () => {
+    it('should display the event details and a booking form when the user is authenticated', async () => {
+        const timestamp = Date.now()
+        const testEmail = "user" + timestamp + "@example.com"
+        const testPassword = "Secure?1289";
+
+        const registerResponse = await request(app)
+            .post('/users/register')
+            .send({
+                name: "Test User",
+                email: testEmail,
+                password: testPassword
+            });
+
+        const loginResponse = await request(app)
+            .post('/users/login')
+            .send({
+                email: testEmail,
+                password: testPassword
+            });
+
+        const cookies = loginResponse.headers['set-cookie'];
+
+        const eventResponse = await request(app)
+            .get("/events/1")
+            .set("Cookie", cookies);
+
+        expect(eventResponse.status).toBe(200);
+        expect(eventResponse.text).not.toContain('value=""');
+        expect(eventResponse.headers["content-type"]).toContain("text/html");
+        expect(eventResponse.text).toContain('action="/bookings"');
+        expect(eventResponse.text).toContain('method="POST"');
+        expect(eventResponse.text).toContain('name="ticketQuantity"');
+    });
+
+    it('should return 302 and redirect to /user/login when the user is not authenticated', async () => {
         const response = await request(app).get("/events/1");
 
-        expect(response.status).toBe(200);
-        expect(response.headers["content-type"]).toContain("text/html");
-        expect(response.text).toContain('action="/bookings"');
-        expect(response.text).toContain('method="POST"');
-        expect(response.text).toContain('name="ticketQuantity"');
+        expect(response.status).toBe(302);
+        expect(response.headers["location"]).toBe("/users/login");
     });
+
 
     it('should return 404 status when the event is not found', async () => {
         const response = await request(app).get("/events/9999");
