@@ -41,11 +41,23 @@ describe('GET /register - Show Registration Form', () => {
 
 describe('POST /users/login - User Login', () => {
     it('should log the user in with the correct credentials', async () => {
+        const timestamp = Date.now();
+        const testEmail = "loginuser" + timestamp + "@example.com";
+        const testPassword = "Secure?1289";
+        
+        await request(app)
+            .post('/users/register')
+            .send({
+                name:"Test Login",
+                email: testEmail,
+                password: testPassword
+            });
+
         const response = await request(app)
             .post('/users/login')
             .send({
-                email: "user1774721243314@example.com",
-                password: "Secure?1289"
+                email: testEmail,
+                password: testPassword
             });
             
             expect(response.status).toBe(200);
@@ -65,10 +77,23 @@ describe('POST /users/login - User Login', () => {
     });
 
     it('should reject a login attempt with an incorrect password', async () => {
+        const timestamp = Date.now();
+        const testEmail = "loginuser" + timestamp + "@example.com";
+        const testPassword = "Secure?1289";
+        
+        await request(app)
+            .post('/users/register')
+            .send({
+                name:"Test Login",
+                email: testEmail,
+                password: testPassword
+            });
+
+        
         const response = await request(app)
             .post('/users/login')
             .send({
-                email: 'user1774721243314@example.com',
+                email: testEmail,
                 password: 'wrongPassword1'
             });
 
