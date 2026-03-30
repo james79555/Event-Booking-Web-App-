@@ -1,11 +1,16 @@
-<% if (errorMsg && errorMsg.length > 0) { %>
-    <div class="alert-danger">
-        <%= errorMsg %>
-    </div>
-<% } %>
-
-<% if (successMsg && successMsg.length > 0) { %>
-    <div class="alert-success">
-        <%= successMsg %>
-    </div>
-<% } %>
+<head>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <% if (errorMsg && errorMsg.length > 0) { %>
+        <div class="alert-danger">
+            <%= errorMsg %>
+        </div>
+    <% } %>
+    
+    <% if (successMsg && successMsg.length > 0) { %>
+        <div class="alert-success">
+            <%= successMsg %>
+        </div>
+    <% } %>
+</body>
