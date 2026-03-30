@@ -7,6 +7,7 @@ router.get('/register', userController.showRegistrationForm);
 router.post('/register', userController.processRegistration);
 router.get('/login', userController.showLoginForm);
 router.post('/login', userController.processLogin);
+router.post('/logout', userController.processLogout);
 router.get('/profile', userController.showProfile);
 router.post('/profile/email', userController.updateEmail);
 router.post('/profile/name', userController.updateName);

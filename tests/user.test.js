@@ -133,6 +133,27 @@ describe('GET /login - Show Login Form', () => {
     });
 });
 
+describe('POST /users/logout - User Logout', () => {
+    it('should log the user out and destroy the session', async () => {
+        const {cookie} = await getAuthCookie();
+
+        const response = await request(app)
+            .post('/users/logout')
+            .set('Cookie', cookie);
+
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe('/users/login');
+    });
+
+    it('should redirect unauthenticated users to login', async () => {
+        const response = await request(app)
+            .post('/users/logout');
+
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe('/users/login');
+    });
+});
+
 describe('GET /users/profile - View User Profile', () => {
     it('should allow an authenticated user to view their profile', async () => {
         const {cookie, email} = await getAuthCookie();

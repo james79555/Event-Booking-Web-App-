@@ -64,6 +64,18 @@ const processLogin = async (req, res) => {
     }
 }
 
+const processLogout = (req, res) => {
+    try{
+        req.session.destroy();
+        res.clearCookie('connect.sid').redirect('/users/login');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error during logout');
+    }
+   
+    
+}
+
 const updatePassword = async (req,res) => {
     try{
         const userId = req.session.userId;
@@ -219,6 +231,7 @@ module.exports = {
     processRegistration,
     showLoginForm,
     processLogin,
+    processLogout,
     updatePassword,
     updateName,
     updateEmail,
