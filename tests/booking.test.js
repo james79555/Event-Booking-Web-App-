@@ -1,5 +1,6 @@
 const request = require('supertest'); 
 const app = require('../app')
+const pool = require('../config/db');
 
 async function getAuthCookie() {
     const timestamp = Date.now();
@@ -68,6 +69,55 @@ describe('POST /bookings - Process Booking', () => {
         expect(response.status).toBe(302); 
         expect(response.headers.location).toBe("/events/1");
     }); 
+});
+
+descibe('POST /bookings/cancel - Cancel Booking', () => {
+    it('should successfully cancel a booking and restore the event capacity', async () => {
+        const cookie = await getAuthCookie();
+        
+        await request(app)
+            .post('/bookings')
+            .set('Cookie', cookie)
+            .send({ eventId: 1, ticketQuantity: 2 });
+
+        const result = await pool.query(
+            'SELECT booking_id FROM bookings ORDER BY booking_id DESC LIMIT 1',
+        )
+        const bookingId = result.rows[0].booking_id;
+
+        await request(app)
+            .post('/bookings/cancel')
+            .set('Cookie', cookie)
+            .send({ bookingId: bookingId });
+    });
+
+    it('should redirect to booking view with a flash message if the booking does not belong to the logged-in user (or doesnt exist)', async () => {
+        const userB = await getAuthCookie();
+
+        const response = await request(app)
+            .post('/bookings/cancel')
+            .set('Cookie', cookieB)
+            .send({ bookingId: 9999 });
+
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe("/bookings");
+
+        const followUpResponse = await request(app)
+            .get('/bookings')
+            .set('Cookie', userB);
+
+        expect(followUpResponse.text).toContain("Booking not found or unauthorized");
+    });
+
+    it('should redirect to login if the user is not authenticated', async () => {
+        const response = await request(app)
+            .post('/bookings/cancel')
+            .send({ bookingId: 1 });
+
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe("/users/login");
+    });
+
 });
 
 describe('GET /bookings route - View UI Tests', () => {
