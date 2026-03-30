@@ -85,10 +85,13 @@ descibe('POST /bookings/cancel - Cancel Booking', () => {
         )
         const bookingId = result.rows[0].booking_id;
 
-        await request(app)
+        const followUpResponse = await request(app)
             .post('/bookings/cancel')
             .set('Cookie', cookie)
             .send({ bookingId: bookingId });
+
+        expect(followUpResponse.text).toContain("Booking cancelled successfully");
+
     });
 
     it('should redirect to booking view with a flash message if the booking does not belong to the logged-in user (or doesnt exist)', async () => {

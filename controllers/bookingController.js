@@ -67,7 +67,46 @@ const processBooking = async (req, res) => {
     }
 }
 
+const cancelBooking = async (req, res) => {
+    try{
+        const userId = req.session.userId;
+
+        if (!userId) {
+            return res.redirect('/users/login');
+        }
+        const {bookingId} = req.body;
+
+        const result = await pool.query(
+            'SELECT event_id, ticket_quantity FROM bookings WHERE booking_id = $1 AND user_id = $2',
+            [bookingId, userId]
+        );
+        const booking = result.rows[0];
+
+        if (!booking) {
+            req.flash('error', 'Booking not found or unauthorized');
+            return res.redirect('/bookings');
+        }
+
+        await pool.query(
+            'DELETE FROM bookings WHERE booking_id = $1',
+            [bookingId]
+        );
+
+        await pool.query(
+            'UPDATE events SET tickets_sold = tickets_sold - $1 WHERE event_id = $2',
+            [booking.ticket_quantity, booking.event_id]
+        );
+
+        req.flash('success', 'Booking cancelled successfully!');
+        res.redirect('/bookings');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error while cancelling booking');
+    }
+}
+
 module.exports = {
     showUserBookings,
-    processBooking
+    processBooking, 
+    cancelBooking
 };

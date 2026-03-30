@@ -18,6 +18,13 @@
                             <strong> <%= ticket.title %> </strong>
                             <p> <%= ticket.event_date %> </p>
                             <p> Ticket Quantity: <%= ticket.ticket_quantity %> </p>
+
+                            <form action="/bookings/cancel" method="POST">
+                                <input type="hidden" name="bookingId" value="<%= ticket.booking_id %>">
+                                <button type="submit" class="cancel-button" onclick="return confirm('Are you sure you want to cancel this booking?');">Cancel Booking</button>
+                            </form>
+
+                            <hr>
                         </li>
                     <% }) %>
                 </ul>    
