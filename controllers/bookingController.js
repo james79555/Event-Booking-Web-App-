@@ -26,11 +26,13 @@ const processBooking = async (req, res) => {
         const userId = req.session.userId;  
 
         if (!userId) {
-            return res.status(401).send('Unauthorized');
+            req.session.returnTo = '/events/' + eventId;
+
+            return res.redirect('/users/login');
         }
 
         if (!ticketQuantity) {
-            return res.status(400).send('Missing quantity!');
+            return res.redirect('/events/' + eventId);
         }
 
         const result = await pool.query(
@@ -50,10 +52,10 @@ const processBooking = async (req, res) => {
                 'UPDATE events SET tickets_sold = tickets_sold + $1 WHERE event_id = $2',
                 [ticketQuantity, eventId]
             );
-            res.status(200).send('booking processed');
+            res.redirect('/bookings');
         }
         else {
-            res.status(400).send('Not Enough Capacity!');
+            res.redirect('/events/' + eventId);
         }
     } catch (err) {
         console.error(err);

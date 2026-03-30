@@ -36,7 +36,7 @@ describe('POST /bookings - Process Booking', () => {
             .send({ eventId: 1, ticketQuantity: 2 }); 
 
         expect(response.status).toBe(302); 
-        expect(response.headers.location).toBe("users/login");
+        expect(response.headers.location).toBe("/users/login");
     });
 
     it('should return a 400 status when requesting more tickets than available capacity', async () =>{
