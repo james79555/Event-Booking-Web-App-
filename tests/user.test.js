@@ -202,7 +202,7 @@ describe('POST /users/profile/password - Change Password', () => {
             });
 
         expect(changePasswordResponse.status).toBe(302);
-        expect(changePasswordResponse.headers.locatio).tobe('/users/profile');
+        expect(changePasswordResponse.headers.location).toBe('/users/profile');
     });
 
     it('should reject a password change attempt with missing fields', async () => {
@@ -216,7 +216,7 @@ describe('POST /users/profile/password - Change Password', () => {
             });
 
         expect(changePasswordResponse.status).toBe(302);
-        expect(response.headers.location).toBe('/users/profile');
+        expect(changePasswordResponse.headers.location).toBe('/users/profile');
     });
 
     it('should redirect an unauthenticated user to login', async () => {

@@ -11,7 +11,7 @@ const processRegistration = async (req, res) => {
         const {name, email, password} = req.body
 
         if (!name || !email || !password) {
-            return res.status(400).send('All fields are required');
+            return res.redirect('/users/register');
         }
 
         const hashedPassword = await argon2.hash(password);
@@ -45,7 +45,7 @@ const processLogin = async (req, res) => {
         )
 
         if (result.rows.length === 0) {
-            return res.status(401).send('Invalid email or password');
+            return res.redirect('/users/login');
         }
 
         const user = result.rows[0]
@@ -53,7 +53,7 @@ const processLogin = async (req, res) => {
         const isMatch = await argon2.verify(user.password_hash, password);
 
         if (!isMatch) {
-            return res.status(401).send('Invalid email or password');
+            return res.redirect('/users/login');
         }
         req.session.userId = user.user_id;
 
@@ -92,7 +92,7 @@ const updatePassword = async (req,res) => {
         }
 
         if(!currentPassword || !newPassword) {
-            return res.status(400).send('All fields are required');
+            return res.redirect('/users/profile');
         }
 
         const result = await pool.query(
@@ -103,7 +103,7 @@ const updatePassword = async (req,res) => {
         const isMatch = await argon2.verify(user.password_hash, currentPassword);
 
         if (!isMatch) {
-            return res.status(401).send('Incorrect password');
+            return res.redirect('/users/profile');
         }
 
         const newHashedPassword = await argon2.hash(newPassword);
@@ -131,7 +131,7 @@ const updateName = async (req,res) => {
         }
 
         if(!name) {
-            return res.status(400).send('Name is required');
+            return res.redirect('/users/profile');
         }
 
         const nameChange = await pool.query(
@@ -158,7 +158,7 @@ const updateEmail = async (req,res) => {
         const {email} = req.body;
 
         if(!email) {
-            return res.status(400).send('Email is required');
+            return res.redirect('/users/profile');
         }
 
         const existingEmail = await pool.query(
@@ -166,7 +166,7 @@ const updateEmail = async (req,res) => {
         )
 
         if (existingEmail.rows.length > 0) {
-            return res.status(400).send('Email is already in use');
+            return res.redirect('/users/profile');
         }
 
         const emailChange = await pool.query(
