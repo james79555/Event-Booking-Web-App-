@@ -132,11 +132,12 @@ const updateName = async (req,res) => {
 const updateEmail = async (req,res) => {
     try{
         const userId = req.session.userId;
-        const {email} = req.body;
 
         if (!userId) {
             return res.redirect('/users/login');
         }
+
+        const {email} = req.body;
 
         if(!email) {
             return res.status(400).send('Email is required');
@@ -162,6 +163,34 @@ const updateEmail = async (req,res) => {
         res.status(500).send('Server error while updating email');
     }
 }
+
+const deleteAccount = async (req,res) => {
+    try{
+        const userId = req.session.userId;
+
+        if (!userId) {
+            return res.redirect('/users/login');
+        }
+
+        await pool.query(
+            "DELETE FROM bookings WHERE user_id = $1", [userId]
+        );
+
+        await pool.query(
+            "DELETE FROM users WHERE user_id = $1", [userId]
+        );
+
+        req.session.destroy();
+
+        res.clearCookie('connect.sid');
+        res.status(200).send('Account deleted successfully');
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error while deleting account');
+    }
+}
+
 
 const showProfile = async (req, res) => {
     try{
@@ -192,6 +221,7 @@ module.exports = {
     processLogin,
     updatePassword,
     updateName,
-    updateName,
+    updateEmail,
+    deleteAccount,
     showProfile
 }

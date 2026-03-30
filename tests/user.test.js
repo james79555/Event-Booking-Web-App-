@@ -14,7 +14,12 @@ async function getAuthCookie() {
         .post('/users/login')
         .send({email: testEmail, password: testPassword});
 
-    return loginResponse.headers['set-cookie'];
+    return {
+        cookie: loginResponse.headers['set-cookie'],
+        email: testEmail,
+        password: testPassword
+    }
+    
 }
 
 describe('POST /register - User Registration', () => {
@@ -130,15 +135,15 @@ describe('GET /login - Show Login Form', () => {
 
 describe('GET /users/profile - View User Profile', () => {
     it('should allow an authenticated user to view their profile', async () => {
-        const cookies = await getAuthCookie();
+        const {cookie, email} = await getAuthCookie();
 
         const profileResponse = await request(app)
             .get('/users/profile')
-            .set('Cookie', cookies);
+            .set('Cookie', cookie);
 
         expect(profileResponse.status).toBe(200);
-        expect(profileResponse.text).toContain('Test Profile');
-        expect(profileResponse.text).toContain(testEmail);
+        expect(profileResponse.text).toContain('My Profile');
+        expect(profileResponse.text).toContain(email);
     }); 
 
     it('should redirect unauthenticated users to the login page', async () => {
@@ -148,15 +153,15 @@ describe('GET /users/profile - View User Profile', () => {
     });
 });
 
-descibe('POST /users/profile/password - Change Password', () => {
+describe('POST /users/profile/password - Change Password', () => {
     it('should allow an authenticated user to change their password', async () => {
-        const cookies = await getAuthCookie();
+        const {cookie, password} = await getAuthCookie();
 
         const changePasswordResponse = await request(app)
             .post('/users/profile/password')
-            .set('Cookie', cookies)
+            .set('Cookie', cookie)
             .send({
-                currentPassword: testPassword,
+                currentPassword: password,
                 newPassword: 'NewSecure?1289'
             });
 
@@ -165,11 +170,11 @@ descibe('POST /users/profile/password - Change Password', () => {
     });
 
     it('should reject a password change attempt with an incorrect current password', async () => {
-        const cookies = await getAuthCookie();
+        const {cookie} = await getAuthCookie();
 
         const changePasswordResponse = await request(app)
             .post('/users/profile/password')
-            .set('Cookie', cookies)
+            .set('Cookie', cookie)
             .send({
                 currentPassword: 'WrongCurrent?1289',
                 newPassword: 'NewSecure?1289'
@@ -180,13 +185,13 @@ descibe('POST /users/profile/password - Change Password', () => {
     });
 
     it('should reject a password change attempt with missing fields', async () => {
-        const cookies = await getAuthCookie();
+        const {cookie, password} = await getAuthCookie();
 
         const changePasswordResponse = await request(app)
             .post('/users/profile/password')
-            .set('Cookie', cookies)
+            .set('Cookie', cookie)
             .send({
-                currentPassword: testPassword
+                currentPassword: password
             });
 
         expect(changePasswordResponse.status).toBe(400);
@@ -197,7 +202,7 @@ descibe('POST /users/profile/password - Change Password', () => {
         const changePasswordResponse = await request(app)
             .post('/users/profile/password')
             .send({
-                currentPassword: testPassword,
+                currentPassword: "SecurePassword123",
                 newPassword: 'NewSecure?1289'
             });
 
@@ -208,43 +213,46 @@ descibe('POST /users/profile/password - Change Password', () => {
 
 describe('POST /users/profile/email - Update Email', () => {
     it('should allow an authenticated user to successfully update their email', async () => {
-        const cookies = await getAuthCookie();
+        const {cookie} = await getAuthCookie();
+        const newEmail = "new.email" + Date.now() + "@example.com";
 
         const response = await request(app)
             .post('/users/profile/email')
-            .set('Cookie', cookies)
-            .send({email: "new.email@example.com"});
+            .set('Cookie', cookie)
+            .send({email: newEmail});
 
             expect(response.status).toBe(200);
             expect(response.text).toContain('Email updated successfully');
     });
 
     it('should return 400 if a new email is already taken', async () => {
+        const takenEmail = "taken" + Date.now() + "@example.com"
+        
         await request(app)
             .post('/users/register')
             .send({
                 name:"User A",
-                email: "taken@example.com",
+                email: takenEmail,
                 password: "Secure?1289"
             });
 
-        const cookies = await getAuthCookie();
+        const {cookie} = await getAuthCookie();
 
         const response = await request(app)
             .post('/users/profile/email')
-            .set('Cookie', cookies)
-            .send({email: "taken@example.com"});
+            .set('Cookie', cookie)
+            .send({email: takenEmail});
 
         expect(response.status).toBe(400);
         expect(response.text).toContain('Email is already in use');
     });
 
     it('should return 400 if email field is missing', async () => {
-        const cookies = await getAuthCookie();
+        const {cookie} = await getAuthCookie();
 
         const response = await request(app)
             .post('/users/profile/email')
-            .set('Cookie', cookies)
+            .set('Cookie', cookie)
             .send({});
 
         expect(response.status).toBe(400);
@@ -261,11 +269,11 @@ describe('POST /users/profile/email - Update Email', () => {
 
 describe('POST /users/profile/name - Update Name', () => {
     it('should allow an authenticated user to successfully update their name', async () => {
-        const cookies = await getAuthCookie();
+        const {cookie} = await getAuthCookie();
 
         const response = await request(app)
             .post('/users/profile/name')
-            .set('Cookie', cookies)
+            .set('Cookie', cookie)
             .send({name: "New Name"});
 
             expect(response.status).toBe(200);
@@ -273,11 +281,11 @@ describe('POST /users/profile/name - Update Name', () => {
     });
 
     it('should return 400 if the name field is missing', async () => {
-        const cookies = await getAuthCookie();
+        const {cookie} = await getAuthCookie();
 
         const response = await request(app)
             .post('/users/profile/name')
-            .set('Cookie', cookies)
+            .set('Cookie', cookie)
             .send({});
 
         expect(response.status).toBe(400);
@@ -288,6 +296,26 @@ describe('POST /users/profile/name - Update Name', () => {
         const response = await request(app)
             .post('/users/profile/name')
             .send({name: "New Name"});
+
+        expect(response.status).toBe(302);
+    });
+});
+
+describe('POST /users/profile/delete - Delete Account', () => {
+    it('should allow an authenticated user to delete their account and destroy the session', async () => {
+        const {cookie} = await getAuthCookie();
+
+        const response = await request(app)
+            .post('/users/profile/delete')
+            .set('Cookie', cookie);
+
+        expect(response.status).toBe(200);
+        expect(response.text).toContain('Account deleted successfully');
+    });
+
+    it('should redirect unauthenticated users to login', async () => {
+        const response = await request(app)
+            .post('/users/profile/delete');
 
         expect(response.status).toBe(302);
     });
