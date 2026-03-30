@@ -11,6 +11,7 @@ const processRegistration = async (req, res) => {
         const {name, email, password} = req.body
 
         if (!name || !email || !password) {
+            req.flash('error', 'All fields are required');
             return res.redirect('/users/register');
         }
 
@@ -20,7 +21,7 @@ const processRegistration = async (req, res) => {
             "INSERT INTO users (name,email,password_hash) VALUES ($1,$2,$3)",
             [name,email,hashedPassword]
         );
-
+        req.flash('success', 'Registration successful! Please log in.');
         res.redirect("/users/login");
     } catch (err) {
         console.error(err);
@@ -37,7 +38,8 @@ const processLogin = async (req, res) => {
         const {email, password} = req.body
 
         if (!email || !password) {
-            return res.status(400).send('Email and password are required')
+            req.flash('error', 'Email and password are required');
+            return res.redirect('/users/login');
         }
 
         const result = await pool.query(
@@ -45,6 +47,7 @@ const processLogin = async (req, res) => {
         )
 
         if (result.rows.length === 0) {
+            req.flash('error', 'Invalid email or password');
             return res.redirect('/users/login');
         }
 
@@ -53,6 +56,7 @@ const processLogin = async (req, res) => {
         const isMatch = await argon2.verify(user.password_hash, password);
 
         if (!isMatch) {
+            req.flash('error', 'Invalid email or password');
             return res.redirect('/users/login');
         }
         req.session.userId = user.user_id;
@@ -60,6 +64,7 @@ const processLogin = async (req, res) => {
         const redirectUrl = req.session.returnTo || '/';
         delete req.session.returnTo;
 
+        req.flash('success', 'Logged in successfully');
         res.redirect(redirectUrl);
     } catch (err) {
         console.error(err);
@@ -72,7 +77,9 @@ const processLogout = (req, res) => {
         if (!req.session.userId) {
             return res.redirect('/users/login');
         }
-        req.session.destroy();
+        delete req.session.userId;
+
+        req.flash('success', 'Logged out successfully');
         res.clearCookie('connect.sid').redirect('/');
     } catch (err) {
         console.error(err);
@@ -88,10 +95,12 @@ const updatePassword = async (req,res) => {
         const {currentPassword, newPassword} = req.body;
 
         if (!userId) {
+            req.flash('error', 'You must be logged in to change your password');
             return res.redirect('/users/login');
         }
 
         if(!currentPassword || !newPassword) {
+            req.flash('error', 'Current and new password are required');
             return res.redirect('/users/profile');
         }
 
@@ -103,6 +112,7 @@ const updatePassword = async (req,res) => {
         const isMatch = await argon2.verify(user.password_hash, currentPassword);
 
         if (!isMatch) {
+            req.flash('error', 'Password is incorrect');
             return res.redirect('/users/profile');
         }
 
@@ -113,6 +123,7 @@ const updatePassword = async (req,res) => {
             [newHashedPassword, userId]
         );
 
+        req.flash('success', 'Password updated successfully');
         res.redirect('/users/profile');
 
     } catch (err) {
@@ -127,10 +138,12 @@ const updateName = async (req,res) => {
         const {name} = req.body;
 
         if (!userId) {
+            req.flash('error', 'You must be logged in to change your name');
             return res.redirect('/users/login');
         }
 
         if(!name) {
+            req.flash('error', 'Name cannot be empty');
             return res.redirect('/users/profile');
         }
 
@@ -139,6 +152,7 @@ const updateName = async (req,res) => {
             [name, userId]
         );
 
+        req.flash('success', 'Name updated successfully');
         res.redirect('/users/profile');
 
     } catch (err) {
@@ -152,12 +166,14 @@ const updateEmail = async (req,res) => {
         const userId = req.session.userId;
 
         if (!userId) {
+            req.flash('error', 'You must be logged in to change your email');
             return res.redirect('/users/login');
         }
 
         const {email} = req.body;
 
         if(!email) {
+            req.flash('error', 'Email cannot be empty');
             return res.redirect('/users/profile');
         }
 
@@ -166,6 +182,7 @@ const updateEmail = async (req,res) => {
         )
 
         if (existingEmail.rows.length > 0) {
+            req.flash('error', 'Email is already in use');
             return res.redirect('/users/profile');
         }
 
@@ -174,6 +191,7 @@ const updateEmail = async (req,res) => {
             [email, userId]
         );
 
+        req.flash('success', 'Email updated successfully');
         res.redirect('/users/profile');
 
     } catch (err) {
@@ -187,6 +205,7 @@ const deleteAccount = async (req,res) => {
         const userId = req.session.userId;
 
         if (!userId) {
+            req.flash('error', 'You must be logged in to delete your account');
             return res.redirect('/users/login');
         }
 
@@ -198,9 +217,10 @@ const deleteAccount = async (req,res) => {
             "DELETE FROM users WHERE user_id = $1", [userId]
         );
 
-        req.session.destroy();
-
+        delete req.session.userID;
         res.clearCookie('connect.sid');
+
+        req.flash('success', 'Account deleted successfully');
         res.redirect('/');
 
     } catch (err) {
@@ -215,6 +235,7 @@ const showProfile = async (req, res) => {
         const userId = req.session.userId;
 
         if (!userId) {
+            req.flash('error', 'You must be logged in to view your profile');
             return res.redirect('/users/login');    
         }
 

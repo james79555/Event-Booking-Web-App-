@@ -18,7 +18,7 @@ async function getAuthCookie() {
 }
 
 describe('POST /bookings - Process Booking', () => {
-    it('should return a 200 status code when a logged-in user books a ticket', async () => {
+    it("should redirect to the user's bookings when the logged-in user books a ticket", async () => {
         const cookie = await getAuthCookie();
 
         const response = await request(app)
@@ -30,7 +30,7 @@ describe('POST /bookings - Process Booking', () => {
         expect(response.headers.location).toBe("/bookings");
     });
 
-    it('should return a 401 status code when an unauthenticated user attempts to book a ticket', async () => {
+    it('should redirect to the login view  when an unauthenticated user attempts to book a ticket', async () => {
         const response = await request(app)
             .post('/bookings')
             .send({ eventId: 1, ticketQuantity: 2 }); 
@@ -39,7 +39,7 @@ describe('POST /bookings - Process Booking', () => {
         expect(response.headers.location).toBe("/users/login");
     });
 
-    it('should return a 400 status when requesting more tickets than available capacity', async () =>{
+    it('should redirect with a flash message when requesting more tickets than available capacity', async () =>{
         const cookie = await getAuthCookie();
         
         const response = await request(app)
@@ -49,9 +49,15 @@ describe('POST /bookings - Process Booking', () => {
 
         expect(response.status).toBe(302);
         expect(response.headers.location).toBe("/events/1");
+
+        const followUpResponse = await request(app)
+            .get('/events/1')
+            .set('Cookie', cookie);
+
+        expect(followUpResponse.text).toContain("Not enough tickets available");
     }); 
 
-    it('should return a 400 status when ticketQuantity is missing from the request', async () => {
+    it('should redirect back to the event details page when ticketQuantity is missing from the request', async () => {
         const cookie = await getAuthCookie();
         
         const response = await request(app)

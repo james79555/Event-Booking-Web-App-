@@ -45,11 +45,19 @@ describe('GET /events/:id - View Event Details', () =>{
     });
 
 
-    it('should return 404 status when the event is not found', async () => {
+    it('should redirect with flash message when the event is not found', async () => {
         const response = await request(app).get("/events/9999");
 
         expect(response.status).toBe(302);
         expect(response.headers.location).toBe("/events");
+
+        const sessionCookie = response.headers['set-cookie'];
+
+        followUpResponse = await request(app)
+            .get("/events/")
+            .set("Cookie", sessionCookie);
+        
+        expect(followUpResponse.text).toContain('Event not found');
     })
 });
 

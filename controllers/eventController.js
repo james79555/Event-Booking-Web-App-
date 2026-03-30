@@ -27,12 +27,14 @@ const getEventDetails = async (req, res) => {
         const event = result.rows[0];
 
         if (!event) {
+            req.flash('error', 'Event not found');
             return res.redirect("/events");
         }
 
         if (!req.session.userId) {
             req.session.returnTo = req.originalUrl;
 
+            req.flash('error', 'You must be logged in to view event details');
             return res.redirect('/users/login');
         }
         

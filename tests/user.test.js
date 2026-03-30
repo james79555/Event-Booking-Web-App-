@@ -23,7 +23,7 @@ async function getAuthCookie() {
 }
 
 describe('POST /register - User Registration', () => {
-    it('should successfully register a new user and return a 201 status', async () => {
+    it('should successfully register a new user and redirect to login view', async () => {
         const timestamp = Date.now()
         const testEmail = "user" + timestamp + "@example.com"
 
@@ -39,7 +39,7 @@ describe('POST /register - User Registration', () => {
         expect(response.headers.location).toBe('/users/login');
     });
 
-    it('should return a 400 status if required fields are missing', async () => {
+    it('should redirect back to registration form if required fields are missing', async () => {
         const response = await request(app)
             .post('/users/register')
             .send({
@@ -121,6 +121,14 @@ describe('POST /users/login - User Login', () => {
 
             expect(response.status).toBe(302);
             expect(response.headers.location).toBe('/users/login');
+
+            const sessionCookie = response.headers['set-cookie'];
+
+            const followUpResponse = await request(app)
+            .get('/users/login')
+            .set('Cookie', sessionCookie);
+
+            expect(followUpResponse.text).toContain("Invalid email or password");
     });
 
 });
@@ -268,7 +276,7 @@ describe('POST /users/profile/email - Update Email', () => {
             expect(response.headers.location).toBe('/users/profile');
     });
 
-    it('should return 400 if email field is missing', async () => {
+    it('should redirect to profile view if email field is missing', async () => {
         const {cookie} = await getAuthCookie();
 
         const response = await request(app)
@@ -299,9 +307,15 @@ describe('POST /users/profile/name - Update Name', () => {
 
             expect(response.status).toBe(302);
             expect(response.headers.location).toBe('/users/profile');
+
+            const followUpResponse = await request(app)
+                .get('/users/profile')
+                .set('Cookie', cookie);
+
+            expect(followUpResponse.text).toContain("Name updated successfully");
     });
 
-    it('should return 400 if the name field is missing', async () => {
+    it('should redirect to profile view if the name field is missing', async () => {
         const {cookie} = await getAuthCookie();
 
         const response = await request(app)

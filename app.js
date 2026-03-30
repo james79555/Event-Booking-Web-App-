@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
-const dotenv = require('dotenv');
+const flash = require('connect-flash');
 
 const eventRoutes = require('./routes/eventRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -22,6 +22,14 @@ app.use(session({
     resave: false, 
     saveUninitialized:false
 }));
+
+app.use(flash());
+app.use((req, res, next) => {
+    res.locals.successMsg = req.flash('success');
+    res.locals.errorMsg = req.flash('error');
+
+    next();
+});
 
 app.use((req, res, next) => {
     res.locals.userId = req.session.userId;

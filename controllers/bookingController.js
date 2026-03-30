@@ -28,10 +28,12 @@ const processBooking = async (req, res) => {
         if (!userId) {
             req.session.returnTo = '/events/' + eventId;
 
+            req.flash('error', 'You must be logged in to book tickets');
             return res.redirect('/users/login');
         }
 
         if (!ticketQuantity) {
+            req.flash('error', 'Please select the number of tickets');
             return res.redirect('/events/' + eventId);
         }
 
@@ -52,9 +54,11 @@ const processBooking = async (req, res) => {
                 'UPDATE events SET tickets_sold = tickets_sold + $1 WHERE event_id = $2',
                 [ticketQuantity, eventId]
             );
+            req.flash('success', 'Booking successful!');
             res.redirect('/bookings');
         }
         else {
+            req.flash('error', 'Not enough tickets available. Please reduce the quantity and try again.');
             res.redirect('/events/' + eventId);
         }
     } catch (err) {
