@@ -26,8 +26,8 @@ describe('POST /bookings - Process Booking', () => {
             .set('Cookie', cookie)
             .send({ eventId: 1, ticketQuantity: 2 }); 
 
-        expect(response.status).toBe(200); 
-        expect(response.text).toContain("booking processed");
+        expect(response.status).toBe(302); 
+        expect(response.headers.location).toBe("/bookings");
     });
 
     it('should return a 401 status code when an unauthenticated user attempts to book a ticket', async () => {
@@ -35,8 +35,8 @@ describe('POST /bookings - Process Booking', () => {
             .post('/bookings')
             .send({ eventId: 1, ticketQuantity: 2 }); 
 
-        expect(response.status).toBe(401); 
-        expect(response.text).toContain("Unauthorized");
+        expect(response.status).toBe(302); 
+        expect(response.headers.location).toBe("users/login");
     });
 
     it('should return a 400 status when requesting more tickets than available capacity', async () =>{
@@ -47,8 +47,8 @@ describe('POST /bookings - Process Booking', () => {
             .set('Cookie' , cookie)
             .send({eventId: 1, ticketQuantity: 9999});
 
-        expect(response.status).toBe(400);
-        expect(response.text).toContain('Not Enough Capacity!');
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe("/events/1");
     }); 
 
     it('should return a 400 status when ticketQuantity is missing from the request', async () => {
@@ -59,8 +59,8 @@ describe('POST /bookings - Process Booking', () => {
             .set('Cookie', cookie)
             .send({ eventId: 1 }); 
 
-        expect(response.status).toBe(400); 
-        expect(response.text).toContain("Missing quantity!");
+        expect(response.status).toBe(302); 
+        expect(response.headers.location).toBe("/events/1");
     }); 
 });
 
