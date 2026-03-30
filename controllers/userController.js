@@ -67,7 +67,7 @@ const processLogin = async (req, res) => {
 const processLogout = (req, res) => {
     try{
         req.session.destroy();
-        res.clearCookie('connect.sid').redirect('/users/login');
+        res.clearCookie('connect.sid').redirect('/');
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error during logout');
@@ -195,7 +195,7 @@ const deleteAccount = async (req,res) => {
         req.session.destroy();
 
         res.clearCookie('connect.sid');
-        res.status(200).send('Account deleted successfully');
+        res.redirect('/');
 
     } catch (err) {
         console.error(err);
