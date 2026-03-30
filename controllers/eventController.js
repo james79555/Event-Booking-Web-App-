@@ -31,6 +31,8 @@ const getEventDetails = async (req, res) => {
         }
 
         if (!req.session.userId) {
+            req.session.returnTo = req.originalUrl;
+
             return res.redirect('/users/login');
         }
         

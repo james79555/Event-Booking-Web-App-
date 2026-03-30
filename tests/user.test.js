@@ -242,8 +242,8 @@ describe('POST /users/profile/email - Update Email', () => {
             .set('Cookie', cookie)
             .send({email: newEmail});
 
-        expect(changePasswordResponse.status).toBe(302);
-        expect(changePasswordResponse.headers.location).toBe('/users/profile');
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe('/users/profile');
     });
 
     it('should return 400 if a new email is already taken', async () => {
@@ -297,8 +297,8 @@ describe('POST /users/profile/name - Update Name', () => {
             .set('Cookie', cookie)
             .send({name: "New Name"});
 
-            expect(changePasswordResponse.status).toBe(302);
-            expect(changePasswordResponse.headers.location).toBe('/users/profile');
+            expect(response.status).toBe(302);
+            expect(response.headers.location).toBe('/users/profile');
     });
 
     it('should return 400 if the name field is missing', async () => {

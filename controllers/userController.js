@@ -21,7 +21,7 @@ const processRegistration = async (req, res) => {
             [name,email,hashedPassword]
         );
 
-        res.status(201).send("Registration successful");
+        res.redirect("/users/login");
     } catch (err) {
         console.error(err);
         res.status(500).send("Server error during registration");
@@ -57,7 +57,10 @@ const processLogin = async (req, res) => {
         }
         req.session.userId = user.user_id;
 
-        res.status(200).send('login successful');
+        const redirectUrl = req.session.returnTo || '/';
+        delete req.session.returnTo;
+
+        res.redirect(redirectUrl);
     } catch (err) {
         console.error(err);
         res.status(500).send('Server error during login');
@@ -66,6 +69,9 @@ const processLogin = async (req, res) => {
 
 const processLogout = (req, res) => {
     try{
+        if (!req.session.userId) {
+            return res.redirect('/users/login');
+        }
         req.session.destroy();
         res.clearCookie('connect.sid').redirect('/');
     } catch (err) {
@@ -107,7 +113,7 @@ const updatePassword = async (req,res) => {
             [newHashedPassword, userId]
         );
 
-        res.status(200).send('Password changed successfully');
+        res.redirect('/users/profile');
 
     } catch (err) {
         console.error(err);
@@ -133,7 +139,7 @@ const updateName = async (req,res) => {
             [name, userId]
         );
 
-        res.status(200).send('Name updated successfully');
+        res.redirect('/users/profile');
 
     } catch (err) {
         console.error(err);
@@ -168,7 +174,7 @@ const updateEmail = async (req,res) => {
             [email, userId]
         );
 
-        res.status(200).send('Email updated successfully');
+        res.redirect('/users/profile');
 
     } catch (err) {
         console.error(err);
