@@ -9,6 +9,49 @@
             <p> Name: <%= user.name %> </p>
             <p> Email: <%= user.email %> </p>
             <a href="/bookings"> View My Booked Tickets </a>
+
+            <hr>
+
+            <h3> Update Name </h3>
+            <form class="update-name-form" action="users/profile/name" method="POST">
+                <label>New Name</label>
+                <input type="text" name="name" required>
+                <button type="submit">Update Name</button>
+            </form>
+
+            <hr>
+
+            <h3> Update Email </h3>
+            <form class="update-email-form" action="users/profile/email" method="POST">
+                <label>New Email</label>
+                <input type="email" name="email" required>
+                <button type="submit">Update Email</button>
+            </form>
+
+            <hr>
+
+            <h3> Update Password </h3>
+            <form class="update-password-form" action="users/profile/password" method="POST">
+                <label>Current Password</label>
+                <input type="password" name="currentPassword" required>
+                <label>New Password</label>
+                <input type="password" name="newPassword" required>
+                <br>
+                <button type="submit">Update Password</button>
+            </form>
+
+            <hr>
+
+            <h3> Account Actions </h3>
+            <form class="logout-form" action="/users/logout" method="POST">
+                <button type="submit">Logout</button>
+            </form>
+
+            <form class="delete-account-form" action="/users/profile/delete" method="POST">
+                <button type="submit" onclick="return confirm('Are you sure you want to delete your account? This cannot be undone.');"> 
+                    Delete Account 
+                </button>
+            </form>
         </div>
     </body>
 </html>
