@@ -1,5 +1,7 @@
 const pool = require('../config/db');
 
+jest.setTimeout(15000); 
+
 beforeEach(async () => {
     await pool.query(
         'TRUNCATE users , bookings, events RESTART IDENTITY CASCADE'

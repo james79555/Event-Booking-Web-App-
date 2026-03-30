@@ -23,6 +23,12 @@ app.use(session({
     saveUninitialized:false
 }));
 
+app.use((req, res, next) => {
+    res.locals.userId = req.session.userId;
+
+    next();
+});
+
 app.use('/events', eventRoutes);
 app.use('/users', userRoutes);
 app.use('/bookings', bookingRoutes);

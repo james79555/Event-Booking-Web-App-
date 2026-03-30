@@ -1,0 +1,16 @@
+<div class="navbar">
+    <% if (userId) { %>
+        <a href="/">Home</a>
+        <a href="/users/profile">My Profile</a>
+        
+        <form action="/users/logout" method="POST" style="display: inline;">
+            <button type="submit">Logout</button>
+        </form>
+    <%} else { %>
+        <a href="/">Home</a>
+        <a href="/users/login">Login</a>
+        <a href="/users/register">Register</a>
+    <%}%>
+</div>
+
+<hr>

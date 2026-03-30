@@ -82,6 +82,7 @@ describe('GET /events - View All Events (Catalogue)', () => {
 
         expect(response.status).toBe(200);
         expect(response.headers["content-type"]).toContain("text/html");
+        expect(response.text).toContain('href="/"');
         expect(response.text).toContain('href="/users/login"');
         expect(response.text).toContain('href="/users/register"');
         expect(response.text).not.toContain('href="/users/profile"');
@@ -115,8 +116,9 @@ describe('GET /events - View All Events (Catalogue)', () => {
 
         expect(response.status).toBe(200);
         expect(response.headers["content-type"]).toContain("text/html");
+        expect(response.text).toContain('href="/"');
         expect(response.text).toContain('href="/users/profile"');
-        expect(response.text).toContain('href="/users/logout"');
+        expect(response.text).toContain('action="/users/logout"');
         expect(response.text).not.toContain('href="/users/login"');
         expect(response.text).not.toContain('href="/users/register"');
     });
