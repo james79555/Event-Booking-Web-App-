@@ -1,5 +1,6 @@
 const request = require('supertest'); 
 const app = require('../app');
+const pool = require('../config/db'); 
 
 async function getAuthCookie() {
     const timestamp = Date.now();
@@ -19,7 +20,6 @@ async function getAuthCookie() {
         email: testEmail,
         password: testPassword
     }
-    
 }
 
 describe('POST /register - User Registration', () => {
@@ -341,3 +341,4 @@ describe('POST /users/profile/delete - Delete Account', () => {
         expect(response.status).toBe(302);
     });
 });
+

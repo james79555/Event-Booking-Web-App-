@@ -33,6 +33,9 @@ app.get('/', (req, res) => {
 
 module.exports = app;
 
-app.listen(port, () => {
-    console.log(`Server is running on localhost:${port}`);
-});
+
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`Server is running on localhost:${port}`);
+    });
+}

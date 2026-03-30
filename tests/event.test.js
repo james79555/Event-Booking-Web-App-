@@ -1,5 +1,6 @@
 const request = require('supertest'); 
-const app = require('../app')
+const app = require('../app');
+const pool = require('../config/db');
 
 describe('GET /events/:id - View Event Details', () =>{
     it('should display the event details and a booking form when the user is authenticated', async () => {
@@ -64,6 +65,10 @@ describe('GET /events - View All Events (Catalogue)', () => {
     });
 
     it('should display an empty state message if there are no events', async () => {
+        await pool.query(
+            'TRUNCATE events CASCADE'
+        );
+        
         const response = await request(app).get('/events');
         
         expect(response.status).toBe(200);
