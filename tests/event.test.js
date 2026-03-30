@@ -76,4 +76,48 @@ describe('GET /events - View All Events (Catalogue)', () => {
         expect(response.text).toContain("No upcoming events at the moment");
         expect(response.text).not.toContain("View Details");
     });
+
+    it('should display Login and Register links when the user is not authenticated', async () => {
+        const response = await request(app).get('/events');
+
+        expect(response.status).toBe(200);
+        expect(response.headers["content-type"]).toContain("text/html");
+        expect(response.text).toContain('href="/users/login"');
+        expect(response.text).toContain('href="/users/register"');
+        expect(response.text).not.toContain('href="/users/profile"');
+    });
+
+    it('should display Profile and Logout links when the user is authenticated', async () => {
+        const timestamp = Date.now()
+        const testEmail = "user" + timestamp + "@example.com"
+        const testPassword = "Secure?1289";
+
+        await request(app)
+            .post('/users/register')
+            .send({
+                name: "Test User",
+                email: testEmail,
+                password: testPassword
+            });
+
+        const loginResponse = await request(app)
+            .post('/users/login')
+            .send({
+                email: testEmail,
+                password: testPassword
+            });
+
+        const cookies = loginResponse.headers['set-cookie'];
+
+        const response = await request(app)
+            .get('/events')
+            .set("Cookie", cookies);
+
+        expect(response.status).toBe(200);
+        expect(response.headers["content-type"]).toContain("text/html");
+        expect(response.text).toContain('href="/users/profile"');
+        expect(response.text).toContain('href="/users/logout"');
+        expect(response.text).not.toContain('href="/users/login"');
+        expect(response.text).not.toContain('href="/users/register"');
+    });
 });
