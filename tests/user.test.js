@@ -47,8 +47,8 @@ describe('POST /register - User Registration', () => {
                 email: "incomplete@example.com"
             });
 
-            expect(response.status).toBe(400);
-            expect(response.text).toContain('All fields are required');
+            expect(response.status).toBe(302);
+            expect(response.headers.location).toBe('/users/register');
     });
 });
 
@@ -94,8 +94,8 @@ describe('POST /users/login - User Login', () => {
                 password: "Secure?1289"
             });
 
-            expect(response.status).toBe(401);
-            expect(response.text).toContain('Invalid email or password');
+            expect(response.status).toBe(302);
+            expect(response.headers.location).toBe('/users/login');
     });
 
     it('should reject a login attempt with an incorrect password', async () => {
@@ -119,8 +119,8 @@ describe('POST /users/login - User Login', () => {
                 password: 'wrongPassword1'
             });
 
-            expect(response.status).toBe(401);
-            expect(response.text).toContain('Invalid email or password');
+            expect(response.status).toBe(302);
+            expect(response.headers.location).toBe('/users/login');
     });
 
 });
@@ -201,8 +201,8 @@ describe('POST /users/profile/password - Change Password', () => {
                 newPassword: 'NewSecure?1289'
             });
 
-        expect(changePasswordResponse.status).toBe(401);
-        expect(changePasswordResponse.text).toContain('Incorrect password');
+        expect(changePasswordResponse.status).toBe(302);
+        expect(changePasswordResponse.headers.locatio).tobe('/users/profile');
     });
 
     it('should reject a password change attempt with missing fields', async () => {
@@ -215,8 +215,8 @@ describe('POST /users/profile/password - Change Password', () => {
                 currentPassword: password
             });
 
-        expect(changePasswordResponse.status).toBe(400);
-        expect(changePasswordResponse.text).toContain('All fields are required');
+        expect(changePasswordResponse.status).toBe(302);
+        expect(response.headers.location).toBe('/users/profile');
     });
 
     it('should redirect an unauthenticated user to login', async () => {
@@ -264,8 +264,8 @@ describe('POST /users/profile/email - Update Email', () => {
             .set('Cookie', cookie)
             .send({email: takenEmail});
 
-            expect(response.status).toBe(400);
-            expect(response.text).toContain('Email is already in use');
+            expect(response.status).toBe(302);
+            expect(response.headers.location).toBe('/users/profile');
     });
 
     it('should return 400 if email field is missing', async () => {
@@ -276,8 +276,8 @@ describe('POST /users/profile/email - Update Email', () => {
             .set('Cookie', cookie)
             .send({});
 
-        expect(response.status).toBe(400);
-        expect(response.text).toContain('Email is required');
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe('/users/profile');
     });
 
     it('should redirect unauthenticated users to login', async () => {
@@ -309,8 +309,8 @@ describe('POST /users/profile/name - Update Name', () => {
             .set('Cookie', cookie)
             .send({});
 
-        expect(response.status).toBe(400);
-        expect(response.text).toContain('Name is required');
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe('/users/profile');
     });
 
     it('should redirect unauthenticated users to login', async () => {
