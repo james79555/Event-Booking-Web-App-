@@ -59,6 +59,25 @@ describe('GET /events/:id - View Event Details', () =>{
         
         expect(followUpResponse.text).toContain('Event not found');
     })
+
+    it('should display a message when the event is sold out and hide the form', async () => {
+        await pool.query(
+            'UPDATE events SET tickets_sold = 1000 WHERE id = 1'
+        );
+
+        const response = await request(app)
+            .get("/events/1");
+
+        expect(response.status).toBe(200);
+
+        expect(response.text).toContain("This event is sold out");
+        expect(response.text).toContain('disabled');
+        expect(response.text).not.toContain('name=\"ticketQuantity\"');
+
+        await pool.query(
+            "UPDATE events SET tickets_sold = 0 WHERE event_id = 1"
+        )
+    });
 });
 
 describe('GET /events - View All Events (Catalogue)', () => {
