@@ -10,13 +10,17 @@
 
         <div class="container">
             <h1> My Profile </h1>
+
+            <!-- Rendered from the server so the page reflects the canonical user record -->
             <p> Name: <%= user.name %> </p>
             <p> Email: <%= user.email %> </p>
+
+            <!-- Secondary navigation keeps "account" tasks discoverable -->
             <a href="/bookings" class="btn"> View My Booked Tickets </a>
 
             <hr>
-
             <h3> Update Name </h3>
+            <!-- Separate forms keep each update atomic and simplify validation + flash messaging -->
             <form class="update-name-form" action="/users/profile/name" method="POST">
                 <label>New Name</label>
                 <input type="text" name="name" required>
@@ -24,7 +28,6 @@
             </form>
 
             <hr>
-
             <h3> Update Email </h3>
             <form class="update-email-form" action="/users/profile/email" method="POST">
                 <label>New Email</label>
@@ -33,9 +36,9 @@
             </form>
 
             <hr>
-
             <h3> Update Password </h3>
             <form class="update-password-form" action="/users/profile/password" method="POST">
+                <!-- Collect current password to prevent silent takeovers on unlocked sessions -->
                 <label>Current Password</label>
                 <input type="password" name="currentPassword" required>
                 <label>New Password</label>
@@ -45,12 +48,14 @@
             </form>
 
             <hr>
-
             <h3> Account Actions </h3>
+
+            <!-- Duplicate logout here so users can exit from the profile without relying on navbar -->
             <form class="logout-form" action="/users/logout" method="POST">
                 <button type="submit">Logout</button>
             </form>
 
+            <!-- Confirm because deletion is irreversible; server still verifies auth -->
             <form class="delete-account-form" action="/users/profile/delete" method="POST">
                 <button type="submit" onclick="return confirm('Are you sure you want to delete your account? This cannot be undone.');"> 
                     Delete Account 
