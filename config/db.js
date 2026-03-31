@@ -1,15 +1,11 @@
-const { Pool } = require('pg'); 
-require('dotenv').config(); 
+const { Pool } = require('pg');
+require('dotenv').config();
 
+// The Pool configuration now accepts a single DATABASE_URL string.
+// It also conditionally applies SSL encryption. 
 const pool = new Pool({
-    user: process.env.DB_USER, 
-    host: process.env.DB_HOST, 
-    port: process.env.DB_PORT, 
-    database: process.env.DB_NAME
-}); 
-
-pool.connect()
-    .then( () => console.log("Successfully connected to PostgreSQL!"))
-    .catch(err => console.error("Database connection error", err.stack)); 
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
 module.exports = pool;
