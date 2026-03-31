@@ -16,6 +16,9 @@
                 <ul class="event-list">
                     <% events.forEach(event => { %>
                         <li class="event-card">
+                            <% if (event.tickets_sold >= event.total_capacity) { %>
+                                <span class="sold-out">Sold Out</span>
+                            <% } %>
                             <strong> <%= event.title %> </strong>
                             <p> <%= event.event_date %> </p>
                             <a href="/events/<%= event.event_id %>">View Details</a>

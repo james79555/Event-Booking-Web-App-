@@ -11,16 +11,24 @@
         <div class="container">
             <h1> <%= event.title %> </h1>
             <p> <%= event.location %> | <%= event.event_date %></p>
-            <p> Tickets Available: <%= (event.total_capacity - event.tickets_sold) %> </p>
+
+            <% const remaining = event.total_capacity - event.tickets_sold; %>
+
+            <p> Tickets Available: <%= remaining %> </p>
+
+            <% if (remaining <= 0) { %>
+                <h3> This event is sold out </h3>
+                <button disabled> Sold Out </button>
+            <% } else {%>
+                <form class="event-form" action="/bookings" method="POST">
+                    <input type="hidden" name="eventId" value= "<%= event.event_id %>" >
+                    <input type="hidden" name="userId" value= "<%= userId %>">
     
-            <form class="event-form" action="/bookings" method="POST">
-                <input type="hidden" name="eventId" value= "<%= event.event_id %>" >
-                <input type="hidden" name="userId" value= "<%= userId %>">
-    
-                <label> How many tickets? </label>
-                <input type="number" name="ticketQuantity" min= "1">
-                <button type="submit">Submit</button>
-            </form>
+                    <label> How many tickets? </label>
+                    <input type="number" name="ticketQuantity" min= "1" max="<%= remaining %>">
+                    <button type="submit">Submit</button>
+                </form>
+            <% } %>
         </div>
     </body>
     
