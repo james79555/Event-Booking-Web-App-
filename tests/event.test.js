@@ -62,11 +62,33 @@ describe('GET /events/:id - View Event Details', () =>{
 
     it('should display a message when the event is sold out and hide the form', async () => {
         await pool.query(
-            'UPDATE events SET tickets_sold = 1000 WHERE id = 1'
+            'UPDATE events SET tickets_sold = 1000 WHERE event_id = 1'
         );
 
+        const timestamp = Date.now()
+        const testEmail = "user" + timestamp + "@example.com"
+        const testPassword = "Secure?1289";
+
+        await request(app)
+            .post('/users/register')
+            .send({
+                name: "Test User",
+                email: testEmail,
+                password: testPassword
+            });
+
+        const loginResponse = await request(app)
+            .post('/users/login')
+            .send({
+                email: testEmail,
+                password: testPassword
+            });
+
+        const cookies = loginResponse.headers['set-cookie'];
+
         const response = await request(app)
-            .get("/events/1");
+            .get("/events/1")
+            .set("Cookie", cookies);
 
         expect(response.status).toBe(200);
 

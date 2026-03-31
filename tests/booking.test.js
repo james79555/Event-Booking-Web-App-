@@ -71,7 +71,7 @@ describe('POST /bookings - Process Booking', () => {
     }); 
 });
 
-descibe('POST /bookings/cancel - Cancel Booking', () => {
+describe('POST /bookings/cancel - Cancel Booking', () => {
     it('should successfully cancel a booking and restore the event capacity', async () => {
         const cookie = await getAuthCookie();
         
@@ -85,10 +85,17 @@ descibe('POST /bookings/cancel - Cancel Booking', () => {
         )
         const bookingId = result.rows[0].booking_id;
 
-        const followUpResponse = await request(app)
+        const response = await request(app)
             .post('/bookings/cancel')
             .set('Cookie', cookie)
             .send({ bookingId: bookingId });
+
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe("/bookings");
+
+        const followUpResponse = await request(app)
+            .get('/bookings')
+            .set('Cookie', cookie);
 
         expect(followUpResponse.text).toContain("Booking cancelled successfully");
 
@@ -99,7 +106,7 @@ descibe('POST /bookings/cancel - Cancel Booking', () => {
 
         const response = await request(app)
             .post('/bookings/cancel')
-            .set('Cookie', cookieB)
+            .set('Cookie', userB)
             .send({ bookingId: 9999 });
 
         expect(response.status).toBe(302);
