@@ -1,17 +1,25 @@
 <div class="navbar">
-    <% if (userId) { %>
+    <% 
+    // Navbar is the main auth affordance: show "account actions" only when a session exists,
+    // so guests aren't teased with links they can't use.
+    if (userId) { 
+    %>
         <a href="/">Home</a>
         <a href="/users/profile">My Profile</a>
         
+        <!-- POST logout avoids logging out via a link click / prefetch and aligns with CSRF-safe patterns -->
         <form action="/users/logout" method="POST" style="display: inline;">
             <button type="submit">Logout</button>
         </form>
-    <%} else { %>
+    <% 
+    } else { 
+    %>
+        <!-- Guest nav keeps onboarding obvious: login/register are the primary next steps -->
         <a href="/">Home</a>
         <a href="/users/login">Login</a>
         <a href="/users/register">Register</a>
-    <%}%>
+    <% 
+    } 
+    %>
 </div>
-
 <hr>
-

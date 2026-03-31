@@ -1,12 +1,17 @@
-<% if (errorMsg && errorMsg.length > 0) { %>
+<%
+// Flash messages are "one request" feedback after redirects,
+// keeping UX responsive without re-submitting forms.
+if (errorMsg && errorMsg.length > 0) { 
+%>
     <div class="alert-danger">
-        <%= errorMsg %>
+        <%= errorMsg %> 
     </div>
 <% } %>
 
-<% if (successMsg && successMsg.length > 0) { %>
+<%
+if (successMsg && successMsg.length > 0) { 
+%>
     <div class="alert-success">
-        <%= successMsg %>
+        <%= successMsg %> 
     </div>
 <% } %>
-
