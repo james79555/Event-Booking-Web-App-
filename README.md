@@ -1,16 +1,20 @@
 # 🎟️ Full-Stack Event Booking Platform
 
+**🚀 Live Deployment:** [Click here to view the live application](https://event-booking-web-app-xlgy.onrender.com)
+
 A robust, full-stack event ticketing application built with Node.js, Express, and PostgreSQL. This application allows users to browse an event catalogue, securely register for accounts, manage their profiles, and book or cancel tickets with real-time capacity protections.
+
+*(Note: This application is hosted on free-tier instances via Render and Neon. If the site has not been visited recently, the initial load may take 10-15 seconds as the servers wake from sleep. Subsequent clicks will be instantaneous.)*
 
 ## 🎓 Project Motivation & Academic Context
 
-[cite_start]This project was developed as the summative coursework for the Software Development 2 module[cite: 47]. [cite_start]The goal of this assignment was to design, build, test, deploy, and document an Event Booking & Ticketing Web Application[cite: 56]. 
+This project was developed as the summative coursework for the Software Development 2 module. The goal of this assignment was to design, build, test, deploy, and document an Event Booking & Ticketing Web Application. 
 
 It was built to demonstrate the clear, practical application of several advanced software engineering concepts, including:
-* [cite_start]**Architectural Patterns:** Strict use of the MVC (Model-View-Controller) design pattern[cite: 64].
-* [cite_start]**Programming Paradigms:** Application of Object-oriented programming (OOP) and Event-driven programming[cite: 59, 60].
-* [cite_start]**Database Integration:** Relational data modelling and integration using SQL[cite: 63].
-* [cite_start]**Professional Workflows:** Utilization of Agile-influenced workflows, automated testing, and proper version control using Git[cite: 67, 68].
+* **Architectural Patterns:** Strict use of the MVC (Model-View-Controller) design pattern.
+* **Programming Paradigms:** Application of Object-oriented programming (OOP) and Event-driven programming.
+* **Database Integration:** Relational data modelling and integration using SQL.
+* **Professional Workflows:** Utilization of Agile-influenced workflows, automated testing, and proper version control using Git.
 
 ## ✨ Key Features
 
@@ -25,10 +29,11 @@ It was built to demonstrate the clear, practical application of several advanced
 This application was engineered using a **Strict MVC (Model-View-Controller)** architectural pattern to ensure a clean separation of concerns, maximum maintainability, and highly readable controllers.
 
 * **Backend:** Node.js, Express.js
-* **Database:** PostgreSQL (`pg` node-postgres)
+* **Database:** PostgreSQL (Hosted on **Neon.tech** Serverless Postgres)
 * **Frontend Views:** EJS (Embedded JavaScript), custom CSS
 * **Security:** Argon2, Express-Session
 * **Testing:** Jest, Supertest
+* **Deployment:** **Render** (Web Service Cloud Hosting)
 
 ## 🚀 Local Installation & Setup
 
@@ -46,7 +51,7 @@ npm install
 \`\`\`
 
 ### 3. Database Setup
-Create a PostgreSQL database named `event_booking`. Then, run the following SQL commands to build your tables:
+You will need a PostgreSQL database (either local or cloud-hosted via Neon/Supabase). Run the following SQL commands to build your tables:
 
 \`\`\`sql
 CREATE TABLE users (
@@ -79,12 +84,9 @@ CREATE TABLE bookings (
 Create a `.env` file in the root directory and add your credentials:
 \`\`\`text
 PORT=3000
+NODE_ENV=development
 SESSION_SECRET=your_super_secret_session_key
-DB_USER=postgres
-DB_PASSWORD=your_postgres_password
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=event_booking
+DATABASE_URL=postgresql://username:password@your-database-host.com/neondb?sslmode=require
 \`\`\`
 
 ### 5. Start the Server
