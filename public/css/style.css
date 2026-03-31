@@ -55,6 +55,11 @@ h1, h3 {
     color: var(--primary-colour);
 }
 
+.navbar form {
+    margin: 0;
+    flex-direction: row;
+}
+
 .navbar form button {
     margin: 0;
     padding: 8px 16px;
