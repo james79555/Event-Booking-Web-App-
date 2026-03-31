@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --runInBand --forceExit",
+    "coverage": "jest --runInBand --coverage",
     "docs": "jsdoc -r models controllers routes -d docs"
+
   },
   "keywords": [],
   "author": "",
