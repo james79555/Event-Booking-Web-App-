@@ -10,15 +10,19 @@
         
         <div class="container">
             <h1>Upcoming Events</h1>
+
+            <!-- Empty state prevents a "blank page" when the catalogue has no rows -->
             <% if (events.length === 0) { %>
                 <p class="empty-state">No upcoming events at the moment</p>
             <% } else { %>
                 <ul class="event-list">
                     <% events.forEach(event => { %>
                         <li class="event-card">
+                            <!-- Visual cue reduces wasted clicks; details page also enforces capacity rules -->
                             <% if (event.tickets_sold >= event.total_capacity) { %>
                                 <span class="sold-out">Sold Out</span>
                             <% } %>
+
                             <strong> <%= event.title %> </strong>
                             <p> <%= event.event_date %> </p>
                             <a href="/events/<%= event.event_id %>">View Details</a>
@@ -27,5 +31,5 @@
                 </ul>
             <% } %> 
         </div>
-    </body>
+</body>
 </html>

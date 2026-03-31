@@ -12,19 +12,26 @@
             <h1> <%= event.title %> </h1>
             <p> <%= event.location %> | <%= event.event_date %></p>
 
-            <% const remaining = event.total_capacity - event.tickets_sold; %>
+            <% 
+            // Compute remaining here so the UI can reflect real-time availability
+            // without duplicating this logic across multiple templates.
+            const remaining = event.total_capacity - event.tickets_sold; 
+            %>
 
             <p> Tickets Available: <%= remaining %> </p>
 
+            <!-- Disable purchase UI when sold out to reduce frustration; server still enforces it -->
             <% if (remaining <= 0) { %>
                 <h3> This event is sold out </h3>
                 <button disabled> Sold Out </button>
             <% } else {%>
+                <!-- eventId is the source of truth; userId is also tracked in session server-side -->
                 <form class="event-form" action="/bookings" method="POST">
                     <input type="hidden" name="eventId" value= "<%= event.event_id %>" >
                     <input type="hidden" name="userId" value= "<%= userId %>">
     
                     <label> How many tickets? </label>
+                    <!-- Min/max guides the user; server validates to prevent overbooking -->
                     <input type="number" name="ticketQuantity" min= "1" max="<%= remaining %>">
                     <button type="submit">Submit</button>
                 </form>
