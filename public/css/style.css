@@ -1,5 +1,5 @@
 :root {
-    --primary-colour: #d1410c;
+    --primary-colour: #dee5ff;
     --primary-hover: #a33309;
     --bg-color: #f8f9fa; 
     --card-bg: #ffffff;
@@ -116,8 +116,7 @@ input:focus {
 }
 
 button[type="submit"] {
-    background-color: var(--primary-color);
-    color: white;
+    background-color: #dee5ff;
     border: none;
     padding: 12px 24px;
     font-size: 1rem;
