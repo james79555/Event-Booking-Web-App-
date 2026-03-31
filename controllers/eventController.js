@@ -1,18 +1,15 @@
-const pool = require('../config/db');
+const Event = require('../models/Event'); 
 
 /**
  * Retrieves the complete event catalogue and renders the homepage.
  * Events are sorted chronologically by date to surface upcoming events first.
- * * @param {Object} req - The Express request object.
+ * @param {Object} req - The Express request object.
  * @param {Object} res - The Express response object.
  */
 const getAllEvents = async (req, res) => {
     try{
-        const result = await pool.query(
-            "SELECT * FROM events ORDER BY event_date ASC"
-        );
-    
-        const events = result.rows;
+        // Ask the Model for all events
+        const events = await Event.findAll();
     
         res.status(200).render('events', {events: events});
     } catch (err) {
@@ -26,18 +23,15 @@ const getAllEvents = async (req, res) => {
  * Implements a "Security Bouncer" with a breadcrumb trail: unauthenticated users
  * attempting to view an event are redirected to login, but their intended destination
  * is saved in the session so they can go back post-login.
- * * @param {Object} req - The Express request object containing the event ID parameter.
+ * @param {Object} req - The Express request object containing the event ID parameter.
  * @param {Object} res - The Express response object for rendering or redirecting.
  */
 const getEventDetails = async (req, res) => {
     try {
         const eventId = req.params.id; 
 
-        const result = await pool.query(
-            "SELECT * FROM events WHERE event_id = $1", 
-                [eventId]
-        );
-        const event = result.rows[0];
+        // Ask the Model for the specific event
+        const event = await Event.findById(eventId);
 
         // Prevent users from hanging on bad URLs
         if (!event) {

@@ -1,5 +1,5 @@
 const argon2 = require('argon2');
-const User = require('../models/User'); // The pool is gone, we only need the Model!
+const User = require('../models/User'); 
 
 /**
  * Renders the user registration form.
