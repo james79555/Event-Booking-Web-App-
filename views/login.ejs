@@ -11,15 +11,16 @@
         <div class="container">
             <h1>Login</h1>
 
+            <!-- Required fields provide quick client-side guardrails; server still validates -->
             <form class="login-form" action="/users/login" method="POST">
                 <label>Email Address</label>
                 <input type="email" name="email" required="true">
-
                 <label>Password:</label>
                 <input type="password" name="password" required="true">
                 <button type="submit">Login</button>
             </form>
 
+            <!-- Clear escape hatch for first-time users -->
             <p> Don't have an account? <a href="/users/register">Register Here</a> </p>
         </div>
     </body>

@@ -5,19 +5,19 @@
         <link rel="stylesheet" href="/css/style.css">
     </head>
     <body>
+        <!-- Consistent global navigation + flash feedback -->
         <%- include('partials/navbar') %>
         <%- include('partials/flash') %>
 
         <div class="container">
             <h1>Create an Account</h1>
 
+            <!-- Registration uses POST/Redirect/GET so success can be shown via flash after redirect -->
             <form class="reg-form" action="/users/register" method="POST">
                 <label>Full Name</label>
                 <input type="text" name="name" required="true">
-
                 <label>Email Address</label>
                 <input type="email" name="email" required="true">
-
                 <label>Password:</label>
                 <input type="password" name="password" required="true">
                 <button type="submit">Register</button>
