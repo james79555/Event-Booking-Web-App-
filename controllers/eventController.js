@@ -1,5 +1,11 @@
 const pool = require('../config/db');
 
+/**
+ * Retrieves the complete event catalogue and renders the homepage.
+ * Events are sorted chronologically by date to surface upcoming events first.
+ * * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ */
 const getAllEvents = async (req, res) => {
     try{
         const result = await pool.query(
@@ -13,9 +19,16 @@ const getAllEvents = async (req, res) => {
         console.error(err);
         res.status(500).send("Server error while fetching events");
     }
-   
 }
 
+/**
+ * Retrieves and displays the details for a single event.
+ * Implements a "Security Bouncer" with a breadcrumb trail: unauthenticated users
+ * attempting to view an event are redirected to login, but their intended destination
+ * is saved in the session so they can go back post-login.
+ * * @param {Object} req - The Express request object containing the event ID parameter.
+ * @param {Object} res - The Express response object for rendering or redirecting.
+ */
 const getEventDetails = async (req, res) => {
     try {
         const eventId = req.params.id; 
@@ -26,11 +39,13 @@ const getEventDetails = async (req, res) => {
         );
         const event = result.rows[0];
 
+        // Prevent users from hanging on bad URLs
         if (!event) {
             req.flash('error', 'Event not found');
             return res.redirect("/events");
         }
 
+        // Security Bouncer: Save the 'ReturnTo' breadcrumb
         if (!req.session.userId) {
             req.session.returnTo = req.originalUrl;
 
@@ -43,7 +58,6 @@ const getEventDetails = async (req, res) => {
         console.error(err);
         res.status(500).send("Server error while fetching event details");
     }
-    
 }
 
 module.exports = {

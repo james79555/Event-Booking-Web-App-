@@ -1,11 +1,22 @@
 const pool = require('../config/db');
 const argon2 = require('argon2');
 
-
+/**
+ * Renders the user registration form.
+ * * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ */
 const showRegistrationForm = (req, res) => {
     res.status(200).render('register');
 }
 
+/**
+ * Processes new user registration.
+ * Cryptographically hashes the user's password using Argon2 before storing it 
+ * in the database to protect against data breaches.
+ * * @param {Object} req - The Express request object containing name, email, and plaintext password.
+ * @param {Object} res - The Express response object.
+ */
 const processRegistration = async (req, res) => {
     try{
         const {name, email, password} = req.body
@@ -29,10 +40,23 @@ const processRegistration = async (req, res) => {
     }
 }
 
+/**
+ * Renders the user login form.
+ * * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ */
 const showLoginForm = (req, res) => {
     res.status(200).render('login');
 }
 
+/**
+ * Processes user authentication.
+ * Utilizes the "ReturnTo" breadcrumb pattern: if the session has a saved URL 
+ * (from attempting to hit a protected route while logged out), it teleports the user 
+ * directly there upon successful login. Otherwise, it defaults to the root catalogue.
+ * * @param {Object} req - The Express request object containing email and password.
+ * @param {Object} res - The Express response object.
+ */
 const processLogin = async (req, res) => {
     try{
         const {email, password} = req.body
@@ -59,8 +83,10 @@ const processLogin = async (req, res) => {
             req.flash('error', 'Invalid email or password');
             return res.redirect('/users/login');
         }
+        
         req.session.userId = user.user_id;
 
+        // Consume the breadcrumb if it exists, default to home if it doesn't
         const redirectUrl = req.session.returnTo || '/';
         delete req.session.returnTo;
 
@@ -72,6 +98,11 @@ const processLogin = async (req, res) => {
     }
 }
 
+/**
+ * Terminates the user's active session and clears associated cookies.
+ * * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ */
 const processLogout = (req, res) => {
     try{
         if (!req.session.userId) {
@@ -85,10 +116,15 @@ const processLogout = (req, res) => {
         console.error(err);
         res.status(500).send('Server error during logout');
     }
-   
-    
 }
 
+/**
+ * Processes a user's password change request.
+ * Requires verification of the current password to ensure the session 
+ * hasn't been hijacked before applying the new Argon2 hash.
+ * * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ */
 const updatePassword = async (req,res) => {
     try{
         const userId = req.session.userId;
@@ -118,7 +154,7 @@ const updatePassword = async (req,res) => {
 
         const newHashedPassword = await argon2.hash(newPassword);
 
-        const passwordChange = await pool.query(
+        await pool.query(
             "UPDATE users SET password_hash = $1 WHERE user_id = $2",
             [newHashedPassword, userId]
         );
@@ -132,6 +168,11 @@ const updatePassword = async (req,res) => {
     }
 }
 
+/**
+ * Updates the authenticated user's display name.
+ * * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ */
 const updateName = async (req,res) => {
     try{
         const userId = req.session.userId;
@@ -147,7 +188,7 @@ const updateName = async (req,res) => {
             return res.redirect('/users/profile');
         }
 
-        const nameChange = await pool.query(
+        await pool.query(
             "UPDATE users SET name = $1 WHERE user_id = $2",
             [name, userId]
         );
@@ -161,6 +202,13 @@ const updateName = async (req,res) => {
     }
 }
 
+/**
+ * Updates the authenticated user's email address.
+ * Cross-references the database to ensure the requested email is not already 
+ * bound to another account.
+ * * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ */
 const updateEmail = async (req,res) => {
     try{
         const userId = req.session.userId;
@@ -186,7 +234,7 @@ const updateEmail = async (req,res) => {
             return res.redirect('/users/profile');
         }
 
-        const emailChange = await pool.query(
+        await pool.query(
             "UPDATE users SET email = $1 WHERE user_id = $2",
             [email, userId]
         );
@@ -200,6 +248,13 @@ const updateEmail = async (req,res) => {
     }
 }
 
+/**
+ * Permanently deletes the authenticated user's account.
+ * Enforces a cascading delete manually by removing the user's dependent records (bookings)
+ * before deleting the user account itself to maintain referential integrity in the database.
+ * * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ */
 const deleteAccount = async (req,res) => {
     try{
         const userId = req.session.userId;
@@ -209,6 +264,7 @@ const deleteAccount = async (req,res) => {
             return res.redirect('/users/login');
         }
 
+        // Must delete foreign key dependencies (bookings) before the user
         await pool.query(
             "DELETE FROM bookings WHERE user_id = $1", [userId]
         );
@@ -229,7 +285,11 @@ const deleteAccount = async (req,res) => {
     }
 }
 
-
+/**
+ * Retrieves the profile data for the currently authenticated user and renders the profile view.
+ * * @param {Object} req - The Express request object.
+ * @param {Object} res - The Express response object.
+ */
 const showProfile = async (req, res) => {
     try{
         const userId = req.session.userId;
@@ -250,7 +310,6 @@ const showProfile = async (req, res) => {
         console.error(err);
         res.status(500).send('Server error while fetching profile');
     }
-    
 }
 
 module.exports = {

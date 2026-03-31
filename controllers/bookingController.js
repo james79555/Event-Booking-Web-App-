@@ -1,5 +1,12 @@
 const pool = require('../config/db');
 
+/**
+ * Retrieves all active bookings for the currently authenticated user.
+ * Joins the bookings table with the events table to display 
+ * event details (title, date) alongside the ticket quantities.
+ * * @param {Object} req - The Express request object containing the user's session ID.
+ * @param {Object} res - The Express response object.
+ */
 const showUserBookings = async (req, res) => {
     try{
         const userId = req.session.userId;
@@ -20,11 +27,20 @@ const showUserBookings = async (req, res) => {
     }
 }
 
+/**
+ * Processes a ticket purchase request.
+ * Enforces strict capacity limits via backend math to prevent overbooking. 
+ * Uses the breadcrumb pattern for unauthenticated users, ensuring a seamless UX 
+ * if they are prompted to log in mid-purchase.
+ * * @param {Object} req - The Express request object containing eventId and ticketQuantity.
+ * @param {Object} res - The Express response object.
+ */
 const processBooking = async (req, res) => {
     try{
         const {eventId, ticketQuantity} = req.body; 
         const userId = req.session.userId;  
 
+        // Security Bouncer: Save the 'ReturnTo' breadcrumb for the specific event
         if (!userId) {
             req.session.returnTo = '/events/' + eventId;
 
@@ -45,6 +61,7 @@ const processBooking = async (req, res) => {
 
         const remainingCapacity = event.total_capacity - event.tickets_sold;
 
+        // Capacity Lock: Ensure we don't sell more tickets than exist
         if (ticketQuantity <= remainingCapacity) {
             await pool.query(
                 'INSERT INTO bookings (user_id, event_id, ticket_quantity) VALUES ($1, $2, $3) RETURNING *',
@@ -67,6 +84,13 @@ const processBooking = async (req, res) => {
     }
 }
 
+/**
+ * Processes a user's request to cancel an existing booking.
+ * Acts as a dual-transaction: verifies ticket ownership, deletes the booking record, 
+ * and refunds the ticket quantity back to the event's available capacity.
+ * * @param {Object} req - The Express request object containing the bookingId.
+ * @param {Object} res - The Express response object.
+ */
 const cancelBooking = async (req, res) => {
     try{
         const userId = req.session.userId;
@@ -76,6 +100,7 @@ const cancelBooking = async (req, res) => {
         }
         const {bookingId} = req.body;
 
+        // Fetch booking while enforcing user ownership to prevent malicious deletions
         const result = await pool.query(
             'SELECT event_id, ticket_quantity FROM bookings WHERE booking_id = $1 AND user_id = $2',
             [bookingId, userId]
@@ -87,11 +112,13 @@ const cancelBooking = async (req, res) => {
             return res.redirect('/bookings');
         }
 
+        // Delete the ticket
         await pool.query(
             'DELETE FROM bookings WHERE booking_id = $1',
             [bookingId]
         );
 
+        // Refund the capacity back to the original event
         await pool.query(
             'UPDATE events SET tickets_sold = tickets_sold - $1 WHERE event_id = $2',
             [booking.ticket_quantity, booking.event_id]
