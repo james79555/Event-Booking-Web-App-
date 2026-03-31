@@ -1,5 +1,5 @@
-const pool = require('../config/db');
 const argon2 = require('argon2');
+const User = require('../models/User'); // The pool is gone, we only need the Model!
 
 /**
  * Renders the user registration form.
@@ -18,7 +18,7 @@ const showRegistrationForm = (req, res) => {
  * @param {Object} res - The Express response object.
  */
 const processRegistration = async (req, res) => {
-    try{
+    try {
         const {name, email, password} = req.body
 
         if (!name || !email || !password) {
@@ -28,10 +28,8 @@ const processRegistration = async (req, res) => {
 
         const hashedPassword = await argon2.hash(password);
 
-        const result = await pool.query(
-            "INSERT INTO users (name,email,password_hash) VALUES ($1,$2,$3)",
-            [name,email,hashedPassword]
-        );
+        await User.create(name, email, hashedPassword);
+
         req.flash('success', 'Registration successful! Please log in.');
         res.redirect("/users/login");
     } catch (err) {
@@ -58,7 +56,7 @@ const showLoginForm = (req, res) => {
  * @param {Object} res - The Express response object.
  */
 const processLogin = async (req, res) => {
-    try{
+    try {
         const {email, password} = req.body
 
         if (!email || !password) {
@@ -66,16 +64,13 @@ const processLogin = async (req, res) => {
             return res.redirect('/users/login');
         }
 
-        const result = await pool.query(
-            "SELECT * FROM users where email = $1", [email]
-        )
+        // The Model returns the user directly, or undefined if not found
+        const user = await User.findByEmail(email);
 
-        if (result.rows.length === 0) {
+        if (!user) {
             req.flash('error', 'Invalid email or password');
             return res.redirect('/users/login');
         }
-
-        const user = result.rows[0]
 
         const isMatch = await argon2.verify(user.password_hash, password);
 
@@ -104,7 +99,7 @@ const processLogin = async (req, res) => {
  * @param {Object} res - The Express response object.
  */
 const processLogout = (req, res) => {
-    try{
+    try {
         if (!req.session.userId) {
             return res.redirect('/users/login');
         }
@@ -126,7 +121,7 @@ const processLogout = (req, res) => {
  * @param {Object} res - The Express response object.
  */
 const updatePassword = async (req,res) => {
-    try{
+    try {
         const userId = req.session.userId;
         const {currentPassword, newPassword} = req.body;
 
@@ -140,10 +135,7 @@ const updatePassword = async (req,res) => {
             return res.redirect('/users/profile');
         }
 
-        const result = await pool.query(
-            "SELECT password_hash FROM users WHERE user_id = $1", [userId]
-        )
-        const user = result.rows[0];
+        const user = await User.findById(userId);
 
         const isMatch = await argon2.verify(user.password_hash, currentPassword);
 
@@ -154,10 +146,7 @@ const updatePassword = async (req,res) => {
 
         const newHashedPassword = await argon2.hash(newPassword);
 
-        await pool.query(
-            "UPDATE users SET password_hash = $1 WHERE user_id = $2",
-            [newHashedPassword, userId]
-        );
+        await User.updatePassword(userId, newHashedPassword);
 
         req.flash('success', 'Password updated successfully');
         res.redirect('/users/profile');
@@ -174,7 +163,7 @@ const updatePassword = async (req,res) => {
  * @param {Object} res - The Express response object.
  */
 const updateName = async (req,res) => {
-    try{
+    try {
         const userId = req.session.userId;
         const {name} = req.body;
 
@@ -188,10 +177,7 @@ const updateName = async (req,res) => {
             return res.redirect('/users/profile');
         }
 
-        await pool.query(
-            "UPDATE users SET name = $1 WHERE user_id = $2",
-            [name, userId]
-        );
+        await User.updateName(userId, name);
 
         req.flash('success', 'Name updated successfully');
         res.redirect('/users/profile');
@@ -210,7 +196,7 @@ const updateName = async (req,res) => {
  * @param {Object} res - The Express response object.
  */
 const updateEmail = async (req,res) => {
-    try{
+    try {
         const userId = req.session.userId;
 
         if (!userId) {
@@ -225,19 +211,14 @@ const updateEmail = async (req,res) => {
             return res.redirect('/users/profile');
         }
 
-        const existingEmail = await pool.query(
-            "SELECT user_id FROM users WHERE email = $1 AND user_id != $2", [email, userId]
-        )
+        const isEmailTaken = await User.checkEmailExistsExcludingUser(email, userId);
 
-        if (existingEmail.rows.length > 0) {
+        if (isEmailTaken) {
             req.flash('error', 'Email is already in use');
             return res.redirect('/users/profile');
         }
 
-        await pool.query(
-            "UPDATE users SET email = $1 WHERE user_id = $2",
-            [email, userId]
-        );
+        await User.updateEmail(userId, email);
 
         req.flash('success', 'Email updated successfully');
         res.redirect('/users/profile');
@@ -256,7 +237,7 @@ const updateEmail = async (req,res) => {
  * @param {Object} res - The Express response object.
  */
 const deleteAccount = async (req,res) => {
-    try{
+    try {
         const userId = req.session.userId;
 
         if (!userId) {
@@ -264,16 +245,9 @@ const deleteAccount = async (req,res) => {
             return res.redirect('/users/login');
         }
 
-        // Must delete foreign key dependencies (bookings) before the user
-        await pool.query(
-            "DELETE FROM bookings WHERE user_id = $1", [userId]
-        );
+        await User.deleteAccount(userId);
 
-        await pool.query(
-            "DELETE FROM users WHERE user_id = $1", [userId]
-        );
-
-        delete req.session.userID;
+        delete req.session.userId;
         res.clearCookie('connect.sid');
 
         req.flash('success', 'Account deleted successfully');
@@ -291,7 +265,7 @@ const deleteAccount = async (req,res) => {
  * @param {Object} res - The Express response object.
  */
 const showProfile = async (req, res) => {
-    try{
+    try {
         const userId = req.session.userId;
 
         if (!userId) {
@@ -299,11 +273,7 @@ const showProfile = async (req, res) => {
             return res.redirect('/users/login');    
         }
 
-        const result = await pool.query(
-            'SELECT name, email FROM users WHERE user_id = $1', [userId]
-        );
-
-        const user = result.rows[0];
+        const user = await User.findById(userId);
 
         res.status(200).render('profile', { user });
     } catch (err) {
