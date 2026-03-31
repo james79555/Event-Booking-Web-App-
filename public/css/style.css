@@ -61,11 +61,10 @@ h1, h3 {
 }
 
 .event-list, .booking-list {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 20px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    list-style-type: none; 
+    padding-left: 0;       
+    display: grid;
+    gap: 40px;
 }
 
 .event-card:hover {
