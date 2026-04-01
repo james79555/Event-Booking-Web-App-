@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --runInBand --forceExit",
-    "coverage": "jest --runInBand --coverage",
+    "coverage": "jest --runInBand --coverage --coverageReporters='text-summary'",
     "docs": "jsdoc -r models controllers routes -d docs"
 
   },
